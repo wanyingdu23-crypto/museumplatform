@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Artifact - My Museum Stories</title>
+  <style>
+    :root {
+      --background: #f3f3f1;
+      --surface: rgba(255, 255, 255, 0.78);
+      --surface-solid: #ffffff;
+      --text: #111111;
+      --muted: #7a7a7a;
+      --border: #e7e7e3;
+      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
+      --card-shadow: 0 4px 16px rgba(17, 17, 17, 0.03);
+      --warning: #eab308;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
+      padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      overflow: hidden;
+    }
+    .app-shell {
+      width: 100%;
+      max-width: 420px;
+      height: calc(100svh - 42px);
+      margin: 0 auto;
+      padding: 20px 16px 24px;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .topbar { display: flex; justify-content: flex-end; }
+    .close-btn, .favorite-btn, .btn {
+      cursor: pointer;
+      transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .close-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-solid);
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .close-btn:hover, .favorite-btn:hover, .btn:hover { transform: translateY(-1px); }
+    .close-btn:active, .favorite-btn:active, .btn:active { transform: translateY(0); }
+    .card {
+      flex: 1;
+      min-height: 0;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface-solid);
+      padding: 18px 16px;
+      box-shadow: var(--card-shadow);
+      overflow-y: auto;
+    }
+    .image {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      border-radius: 20px;
+      border: 1px dashed #d4d4cf;
+      background: linear-gradient(135deg, #f9f9f7 0%, #efefeb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .title { font-size: 1.1rem; font-weight: 700; }
+    .favorite-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .favorite-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      stroke: #b8b8b2;
+      stroke-width: 2.1;
+      stroke-linejoin: round;
+    }
+    .favorite-btn.active { color: var(--warning); }
+    .favorite-btn.active svg { stroke: var(--warning); }
+    .desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+    .actions { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .btn {
+      min-height: 54px;
+      border-radius: 18px;
+      font-size: 1rem;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      box-shadow: 0 6px 14px rgba(17, 17, 17, 0.03);
+    }
+    .btn.primary {
+      background: var(--text);
+      color: #ffffff;
+      border-color: var(--text);
+      box-shadow: 0 10px 18px rgba(17, 17, 17, 0.08);
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      max-width: min(320px, calc(100vw - 40px));
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(17, 17, 17, 0.92);
+      color: #ffffff;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      text-align: center;
+      box-shadow: 0 20px 36px rgba(17, 17, 17, 0.18);
+      display: none;
+      z-index: 25;
+    }
+    .toast.show { display: block; }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="topbar">
+      <button class="close-btn" id="closeButton" type="button" aria-label="Close">×</button>
+    </div>
+    <section class="card">
+      <div class="image">Artifact Image Placeholder</div>
+      <div class="head">
+        <h1 class="title">Artifact Introduction</h1>
+        <button class="favorite-btn" id="favoriteButton" type="button" aria-label="Toggle favorite">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2.8L14.8 8.47L21.05 9.38L16.53 13.79L17.6 20L12 17.05L6.4 20L7.47 13.79L2.95 9.38L9.2 8.47L12 2.8Z"></path>
+          </svg>
+        </button>
+      </div>
+      <p class="desc">This is a placeholder introduction for the artifact related to the Turtle Soup answer. Replace this copy with the final museum description later.</p>
+    </section>
+    <div class="actions">
+      <button class="btn" id="exitButton" type="button">Exit</button>
+      <button class="btn primary" id="continueButton" type="button">Continue Game</button>
+    </div>
+  </main>
+  <div class="toast" id="pageToast">Saved. You can view it in My Profile -> Favorites.</div>
+  <script>
+    var pageToast = document.getElementById("pageToast");
+    var toastTimer = null;
+    function showToast(message) {
+      pageToast.textContent = message;
+      pageToast.classList.add("show");
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function () { pageToast.classList.remove("show"); }, 1800);
+    }
+    document.getElementById("closeButton").addEventListener("click", function () { window.location.href = "turtle-sea.html?round=" + Date.now(); });
+    document.getElementById("exitButton").addEventListener("click", function () { window.location.href = "home.html"; });
+    document.getElementById("continueButton").addEventListener("click", function () { window.location.href = "turtle-sea.html"; });
+    document.getElementById("favoriteButton").addEventListener("click", function () {
+      var active = this.classList.toggle("active");
+      if (active) showToast("Saved. You can view it in My Profile -> Favorites.");
+    });
+  </script>
+</body>
+</html>

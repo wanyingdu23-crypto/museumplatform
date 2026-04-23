@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Museum Splash</title>
+  <style>
+    :root {
+      --background: #f4f4f2;
+      --text: #111111;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #fafaf8 0%, var(--background) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      overflow: hidden;
+    }
+    .splash {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      opacity: 0;
+      transform: translateY(-24px);
+      animation: fadeToBlack 1s ease forwards;
+    }
+    .icon-wrap {
+      width: 120px;
+      height: 120px;
+      border-radius: 32px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(17, 17, 17, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 14px 32px rgba(17, 17, 17, 0.05);
+    }
+    .museum-icon { width: 64px; height: 64px; color: var(--text); }
+    .brand { font-size: 1.15rem; font-weight: 800; letter-spacing: 0.22em; color: var(--text); }
+    @keyframes fadeToBlack {
+      0% { opacity: 0; filter: grayscale(0) brightness(1.2); }
+      100% { opacity: 1; filter: grayscale(1) brightness(0.95); }
+    }
+  </style>
+</head>
+<body>
+  <main class="splash">
+    <div class="icon-wrap" aria-hidden="true">
+      <svg class="museum-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M32 10L12 20V24H52V20L32 10Z" fill="currentColor"/>
+        <path d="M16 28H22V46H16V28Z" fill="currentColor" opacity="0.82"/>
+        <path d="M29 28H35V46H29V28Z" fill="currentColor" opacity="0.82"/>
+        <path d="M42 28H48V46H42V28Z" fill="currentColor" opacity="0.82"/>
+        <path d="M12 48H52V54H12V48Z" fill="currentColor"/>
+      </svg>
+    </div>
+    <p class="brand">MUSEUM</p>
+  </main>
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    var nextPage = params.get("next") || "welcome.html";
+
+    window.setTimeout(function () {
+      window.location.href = nextPage;
+    }, 1000);
+  </script>
+</body>
+</html>

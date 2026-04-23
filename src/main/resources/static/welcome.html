@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>My Museum Stories</title>
+  <style>
+    :root {
+      --background: #f3f3f1;
+      --surface: #ffffff;
+      --surface-soft: #f7f7f5;
+      --text: #111111;
+      --muted: #7a7a7a;
+      --border: #e7e7e3;
+      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(20px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    }
+
+    .screen {
+      width: 100%;
+      max-width: 420px;
+      min-height: min(720px, calc(100svh - 44px));
+      padding: 28px 18px 24px;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .hero {
+      padding-top: clamp(18px, 4vh, 40px);
+    }
+
+    .welcome {
+      margin-bottom: 18px;
+      color: var(--text);
+      font-size: 1.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .logo-wrap {
+      width: 148px;
+      height: 148px;
+      margin: 0 auto 22px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo {
+      width: 74px;
+      height: 74px;
+      color: var(--text);
+    }
+
+    .app-name {
+      font-size: 1.65rem;
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .button {
+      width: 100%;
+      min-height: 52px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background-color 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .button-primary {
+      background: var(--text);
+      color: #ffffff;
+      border-color: var(--text);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <div class="hero">
+      <p class="welcome">WELCOME</p>
+      <p class="eyebrow">My Museum Stories</p>
+
+      <div class="logo-wrap" aria-label="Museum logo area">
+        <svg class="logo" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M32 10L10 20V24H54V20L32 10Z" fill="currentColor"/>
+          <path d="M14 28H20V46H14V28Z" fill="currentColor" opacity="0.82"/>
+          <path d="M26 28H32V46H26V28Z" fill="currentColor" opacity="0.82"/>
+          <path d="M38 28H44V46H38V28Z" fill="currentColor" opacity="0.82"/>
+          <path d="M10 48H54V54H10V48Z" fill="currentColor"/>
+        </svg>
+      </div>
+
+      <h1 class="app-name">My Museum Stories</h1>
+      <p class="subtitle">Museum stories, quietly curated.</p>
+    </div>
+
+    <div class="actions">
+      <button class="button button-primary" id="loginButton" type="button">Login</button>
+      <button class="button" id="registerButton" type="button">Register</button>
+    </div>
+  </main>
+
+  <script>
+    var welcomeParams = new URLSearchParams(window.location.search);
+    var shouldSkipSplash = welcomeParams.get("skipSplash") === "1";
+
+    if (!shouldSkipSplash) {
+      if (!sessionStorage.getItem("welcomeSplashSeen")) {
+        sessionStorage.setItem("welcomeSplashSeen", "1");
+        window.location.replace("index.html?next=welcome.html");
+      } else {
+        sessionStorage.removeItem("welcomeSplashSeen");
+      }
+    } else {
+      sessionStorage.removeItem("welcomeSplashSeen");
+      if (window.location.search) {
+        window.history.replaceState({}, "", "welcome.html");
+      }
+    }
+
+    document.getElementById("loginButton").addEventListener("click", function () {
+      window.location.href = "login.html";
+    });
+
+    document.getElementById("registerButton").addEventListener("click", function () {
+      window.location.href = "register.html";
+    });
+  </script>
+</body>
+</html>

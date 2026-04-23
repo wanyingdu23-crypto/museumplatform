@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Login - My Museum Stories</title>
+  <style>
+    :root {
+      --background: #f3f3f1;
+      --surface: #ffffff;
+      --text: #111111;
+      --muted: #7a7a7a;
+      --border: #e7e7e3;
+      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(20px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    }
+
+    .screen {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px 18px 24px;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .description {
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .label {
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input {
+      width: 100%;
+      min-height: 52px;
+      padding: 14px 52px 14px 15px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #fbfbfa;
+      font-size: 16px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.18s ease, background-color 0.18s ease;
+      appearance: none;
+    }
+
+    .input[data-plain="true"] {
+      padding-right: 15px;
+    }
+
+    .input:focus {
+      border-color: #cfcfca;
+      background: #ffffff;
+    }
+
+    .input::-ms-reveal,
+    .input::-ms-clear {
+      display: none;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 30px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.18s ease, transform 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-btn:hover {
+      color: var(--text);
+      transform: translateY(calc(-50% - 1px));
+    }
+
+    .toggle-btn:active {
+      transform: translateY(-50%);
+    }
+
+    .toggle-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .button {
+      min-height: 52px;
+      margin-top: 6px;
+      border: 1px solid var(--text);
+      border-radius: 18px;
+      background: var(--text);
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background-color 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      background: #222222;
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 18px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .back-link:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <main class="screen">
+    <h1 class="title">Login</h1>
+    <p class="description">Enter your account to continue.</p>
+
+    <form class="form" id="loginForm">
+      <div class="field">
+        <label class="label" for="account">Username or Email</label>
+        <div class="input-wrap">
+          <input class="input" data-plain="true" id="account" name="account" type="text" placeholder="Enter your username or email" autocomplete="username" required>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label" for="password">Password</label>
+        <div class="input-wrap">
+          <input class="input" id="password" name="password" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+          <button class="toggle-btn" id="togglePasswordButton" type="button" aria-label="Show password">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M2.5 12C4.7 7.9 8 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C19.3 16.1 16 18.2 12 18.2C8 18.2 4.7 16.1 2.5 12Z"></path>
+              <circle cx="12" cy="12" r="2.8"></circle>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="button" type="submit">Login</button>
+    </form>
+
+    <a class="back-link" href="welcome.html?skipSplash=1">Back</a>
+  </main>
+
+  <script>
+    var togglePasswordButton = document.getElementById("togglePasswordButton");
+    var passwordInput = document.getElementById("password");
+
+    togglePasswordButton.addEventListener("click", function () {
+      var showing = passwordInput.type === "text";
+      passwordInput.type = showing ? "password" : "text";
+      togglePasswordButton.innerHTML = showing
+        ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12C4.7 7.9 8 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C19.3 16.1 16 18.2 12 18.2C8 18.2 4.7 16.1 2.5 12Z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>'
+        : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4L21 20"></path><path d="M10.6 6.1C11 5.9 11.5 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C20.6 13.6 19.5 14.9 18.2 15.9"></path><path d="M14.8 13.1C14.4 14.2 13.3 15 12 15C10.3 15 9 13.7 9 12C9 10.7 9.8 9.6 10.9 9.2"></path><path d="M7.2 8.1C5.9 9.1 4.8 10.4 3.9 12C6.1 16.1 8.8 18.2 12 18.2C12.8 18.2 13.5 18.1 14.2 17.9"></path></svg>';
+      togglePasswordButton.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      window.localStorage.setItem("museumStoriesPassword", passwordInput.value || "********");
+      window.location.href = "home.html";
+    });
+  </script>
+</body>
+</html>

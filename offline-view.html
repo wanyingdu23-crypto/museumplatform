@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Offline View - My Museum Stories</title>
+  <style>
+    :root {
+      --background: #f3f3f1;
+      --surface: rgba(255, 255, 255, 0.78);
+      --surface-solid: #ffffff;
+      --surface-soft: #f7f7f5;
+      --text: #111111;
+      --muted: #7a7a7a;
+      --border: #e7e7e3;
+      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
+      --card-shadow: 0 4px 16px rgba(17, 17, 17, 0.03);
+      --overlay: rgba(17, 17, 17, 0.22);
+      --warning: #eab308;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
+      padding:
+        max(18px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 420px;
+      min-height: calc(100svh - 42px);
+      margin: 0 auto;
+      padding: 20px 16px 24px;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .close-btn,
+    .favorite-btn,
+    .scan-trigger,
+    .sheet-send {
+      cursor: pointer;
+      transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .close-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface-solid);
+      color: var(--text);
+      font-size: 1.4rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .close-btn:hover,
+    .favorite-btn:hover,
+    .scan-trigger:hover,
+    .sheet-send:hover {
+      transform: translateY(-1px);
+    }
+
+    .close-btn:active,
+    .favorite-btn:active,
+    .scan-trigger:active,
+    .sheet-send:active {
+      transform: translateY(0);
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .scanner-wrap {
+      position: relative;
+    }
+
+    .scanner {
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      background: var(--surface-solid);
+      box-shadow: var(--card-shadow);
+      padding: 18px;
+      transition: transform 0.22s ease;
+    }
+
+    .scanner.compact {
+      transform: translateY(-8px);
+    }
+
+    .scan-frame {
+      width: 100%;
+      aspect-ratio: 1 / 1.08;
+      border-radius: 22px;
+      border: 1px solid #d8d8d2;
+      background: linear-gradient(135deg, #f5f5f2 0%, #ecece8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scan-view {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      background: #111111;
+    }
+
+    .scan-view.show {
+      display: block;
+    }
+
+    .scan-corners::before,
+    .scan-corners::after,
+    .scan-corners span::before,
+    .scan-corners span::after {
+      content: "";
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border: 3px solid rgba(255, 255, 255, 0.92);
+      z-index: 2;
+    }
+
+    .scan-corners::before {
+      left: 18px;
+      top: 18px;
+      border-right: none;
+      border-bottom: none;
+      border-top-left-radius: 10px;
+    }
+
+    .scan-corners::after {
+      right: 18px;
+      top: 18px;
+      border-left: none;
+      border-bottom: none;
+      border-top-right-radius: 10px;
+    }
+
+    .scan-corners span::before {
+      left: 18px;
+      bottom: 18px;
+      border-right: none;
+      border-top: none;
+      border-bottom-left-radius: 10px;
+    }
+
+    .scan-corners span::after {
+      right: 18px;
+      bottom: 18px;
+      border-left: none;
+      border-top: none;
+      border-bottom-right-radius: 10px;
+    }
+
+    .scan-label {
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    .permission-prompt {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 10px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.7);
+      color: #444444;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      z-index: 3;
+      box-shadow: 0 10px 24px rgba(17, 17, 17, 0.08);
+      text-decoration: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .permission-prompt.hidden {
+      display: none;
+    }
+
+    .scan-trigger {
+      width: 100%;
+      margin-top: 14px;
+      min-height: 48px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      font-size: 0.94rem;
+      font-weight: 700;
+    }
+
+    .ask-button {
+      position: absolute;
+      right: 18px;
+      bottom: 18px;
+      border: none;
+      background: transparent;
+      color: #a5d5ff;
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: color 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      z-index: 4;
+    }
+
+    .ask-button:hover {
+      color: #8ec7fb;
+    }
+
+    .artifact-list {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .artifact-list.show {
+      display: flex;
+    }
+
+    .artifact-item {
+      display: grid;
+      grid-template-columns: 94px 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--surface-solid);
+      box-shadow: var(--card-shadow);
+    }
+
+    .artifact-thumb {
+      width: 94px;
+      height: 120px;
+      border-radius: 18px;
+      border: 1px dashed #d4d4cf;
+      background: linear-gradient(135deg, #f9f9f7 0%, #efefeb 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .artifact-body {
+      min-width: 0;
+      padding-top: 4px;
+    }
+
+    .artifact-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .artifact-text {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    .favorite-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .favorite-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+      stroke: #b8b8b2;
+      stroke-width: 2.1;
+      stroke-linejoin: round;
+    }
+
+    .favorite-btn.active {
+      color: var(--warning);
+    }
+
+    .favorite-btn.active svg {
+      stroke: var(--warning);
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: none;
+      z-index: 30;
+    }
+
+    .overlay.show {
+      display: block;
+    }
+
+    .sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      min-height: 50svh;
+      padding: 14px 16px max(20px, env(safe-area-inset-bottom));
+      background: rgba(255, 255, 255, 0.98);
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      box-shadow: 0 -18px 40px rgba(17, 17, 17, 0.14);
+      transform: translateY(100%);
+      transition: transform 0.28s ease;
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .sheet.show {
+      transform: translateY(0);
+    }
+
+    .sheet-handle {
+      width: 44px;
+      height: 5px;
+      border-radius: 999px;
+      background: #d8d8d2;
+      margin: 0 auto;
+    }
+
+    .sheet-title {
+      color: #6d6d67;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: "Trebuchet MS", "Arial Rounded MT Bold", "Microsoft YaHei", sans-serif;
+    }
+
+    .sheet-body {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: linear-gradient(135deg, #fbfbfa 0%, #f3f3f0 100%);
+      padding: 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+
+    .sheet-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .sheet-input {
+      width: 100%;
+      min-height: 50px;
+      padding: 14px 15px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+
+    .sheet-send {
+      min-width: 88px;
+      min-height: 50px;
+      padding: 0 16px;
+      border-radius: 18px;
+      border: 1px solid #111111;
+      background: #111111;
+      color: #ffffff;
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 210px;
+      max-width: 82%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(17, 17, 17, 0.92);
+      color: #ffffff;
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      box-shadow: 0 16px 36px rgba(17, 17, 17, 0.18);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease;
+      z-index: 40;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    @media (max-width: 360px) {
+      .app-shell {
+        border-radius: 24px;
+        padding: 18px 12px 20px;
+      }
+
+      .artifact-item {
+        grid-template-columns: 82px 1fr auto;
+        gap: 10px;
+      }
+
+      .artifact-thumb {
+        width: 82px;
+        height: 110px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="topbar">
+      <button class="close-btn" id="closeButton" type="button" aria-label="Close">&times;</button>
+    </div>
+
+    <section class="content">
+      <div class="scanner-wrap">
+        <div class="scanner" id="scannerCard">
+          <div class="scan-frame">
+            <video class="scan-view" id="cameraView" autoplay playsinline muted></video>
+            <div class="scan-corners"><span></span></div>
+            <span class="scan-label">Scan Here</span>
+            <button class="permission-prompt" id="permissionPrompt" type="button">Please allow camera access</button>
+            <button class="ask-button" id="askButton" type="button">ASK AI</button>
+          </div>
+          <button class="scan-trigger" id="scanTrigger" type="button">Simulate Scan</button>
+        </div>
+      </div>
+
+      <div class="artifact-list" id="artifactList">
+        <article class="artifact-item">
+          <div class="artifact-thumb">Artifact Image</div>
+          <div class="artifact-body">
+            <h2 class="artifact-title">Artifact Title Placeholder</h2>
+            <p class="artifact-text">A placeholder description appears here after scanning. Replace this with the matched artifact summary from the final scan result.</p>
+          </div>
+          <button class="favorite-btn" type="button" aria-label="Toggle favorite">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2.8L14.8 8.47L21.05 9.38L16.53 13.79L17.6 20L12 17.05L6.4 20L7.47 13.79L2.95 9.38L9.2 8.47L12 2.8Z"></path>
+            </svg>
+          </button>
+        </article>
+
+        <article class="artifact-item">
+          <div class="artifact-thumb">Artifact Image</div>
+          <div class="artifact-body">
+            <h2 class="artifact-title">Second Artifact Placeholder</h2>
+            <p class="artifact-text">Use this list item for additional scanned artifacts or object matches returned by the offline viewing experience.</p>
+          </div>
+          <button class="favorite-btn" type="button" aria-label="Toggle favorite">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2.8L14.8 8.47L21.05 9.38L16.53 13.79L17.6 20L12 17.05L6.4 20L7.47 13.79L2.95 9.38L9.2 8.47L12 2.8Z"></path>
+            </svg>
+          </button>
+        </article>
+      </div>
+    </section>
+
+    <div class="toast" id="favoriteToast">Saved. View it in My Profile - Favorites.</div>
+  </main>
+
+  <div class="overlay" id="sheetOverlay"></div>
+
+  <section class="sheet" id="askSheet" aria-label="Doubao panel">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">豆包</div>
+    <div class="sheet-body">
+      This is a placeholder area for the future Doubao conversation flow.
+    </div>
+    <div class="sheet-input-row">
+      <input class="sheet-input" id="sheetInput" type="text" placeholder="Type your question...">
+      <button class="sheet-send" id="sheetSendButton" type="button">Send</button>
+    </div>
+  </section>
+
+  <script>
+    var sheetOverlay = document.getElementById("sheetOverlay");
+    var askSheet = document.getElementById("askSheet");
+    var scannerCard = document.getElementById("scannerCard");
+    var askButton = document.getElementById("askButton");
+    var artifactList = document.getElementById("artifactList");
+    var cameraView = document.getElementById("cameraView");
+    var permissionPrompt = document.getElementById("permissionPrompt");
+    var favoriteToast = document.getElementById("favoriteToast");
+    var toastTimer = null;
+    var activeStream = null;
+
+    function showToast(message) {
+      favoriteToast.textContent = message;
+      favoriteToast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function () {
+        favoriteToast.classList.remove("show");
+      }, 1800);
+    }
+
+    function openSheet() {
+      sheetOverlay.classList.add("show");
+      askSheet.classList.add("show");
+      document.getElementById("sheetInput").focus();
+    }
+
+    function closeSheet() {
+      sheetOverlay.classList.remove("show");
+      askSheet.classList.remove("show");
+    }
+
+    function showScanResults() {
+      scannerCard.classList.add("compact");
+      artifactList.classList.add("show");
+    }
+
+    function updatePermissionState(granted) {
+      permissionPrompt.classList.toggle("hidden", granted);
+    }
+
+    async function openCamera() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        updatePermissionState(false);
+        return;
+      }
+
+      try {
+        if (activeStream) {
+          activeStream.getTracks().forEach(function (track) {
+            track.stop();
+          });
+        }
+
+        activeStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false
+        });
+
+        cameraView.srcObject = activeStream;
+        cameraView.classList.add("show");
+        updatePermissionState(true);
+        showScanResults();
+      } catch (error) {
+        updatePermissionState(false);
+      }
+    }
+
+    async function checkCameraPermission() {
+      if (!navigator.permissions || !navigator.permissions.query) {
+        return;
+      }
+
+      try {
+        var result = await navigator.permissions.query({ name: "camera" });
+        updatePermissionState(result.state === "granted");
+        result.onchange = function () {
+          updatePermissionState(result.state === "granted");
+        };
+      } catch (error) {
+      }
+    }
+
+    function openPermissionSettings() {
+      try {
+        window.location.href = "app-settings:";
+      } catch (error) {
+      }
+    }
+
+    document.getElementById("closeButton").addEventListener("click", function () {
+      window.location.href = "home.html";
+    });
+
+    document.getElementById("scanTrigger").addEventListener("click", function () {
+      openCamera();
+    });
+
+    permissionPrompt.addEventListener("click", function () {
+      openPermissionSettings();
+    });
+
+    askButton.addEventListener("click", function () {
+      openSheet();
+    });
+
+    document.querySelectorAll(".favorite-btn").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var active = button.classList.toggle("active");
+        showToast(active ? "Saved. View it in My Profile - Favorites." : "Removed from favorites.");
+      });
+    });
+
+    sheetOverlay.addEventListener("click", closeSheet);
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeSheet();
+      }
+    });
+
+    document.getElementById("sheetSendButton").addEventListener("click", function () {
+      closeSheet();
+    });
+
+    checkCameraPermission();
+  </script>
+</body>
+</html>
