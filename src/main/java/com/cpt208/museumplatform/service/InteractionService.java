@@ -12,6 +12,7 @@ import com.cpt208.museumplatform.repository.ArtifactRepository;
 import com.cpt208.museumplatform.repository.PuzzleArtifactRepository;
 import com.cpt208.museumplatform.repository.UserArtifactRecordRepository;
 import com.cpt208.museumplatform.repository.UserFavoriteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -182,12 +183,13 @@ public class InteractionService {
         return deepSeekService.askArtifactAssistant(artifact.title(), artifact.description(), prompt);
     }
 
+    @Transactional
     public FavoriteToggleResponseData toggleFavorite(Long userId, Long artifactId) {
         ArtifactPayload artifact = findArtifactPayload(artifactId, "en")
             .orElseThrow(() -> new IllegalArgumentException("Artifact not found."));
 
         boolean active;
-        if (userFavoriteRepository.existsByUserIdAndArtifactId(userId, artifact.id())) {
+        if (userFavoriteRepository.findByUserIdAndArtifactId(userId, artifact.id()).isPresent()) {
             userFavoriteRepository.deleteByUserIdAndArtifactId(userId, artifact.id());
             active = false;
         } else {

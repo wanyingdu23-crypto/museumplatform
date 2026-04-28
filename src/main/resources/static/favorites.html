@@ -457,15 +457,22 @@
 
         var favoriteButton = card.querySelector(".favorite-star");
         favoriteButton.addEventListener("click", async function () {
-          var result = await requestJson("/api/records/favorite/" + encodeURIComponent(record.id), { method: "POST" });
-          favoriteButton.classList.toggle("active", !!result.active);
-          showToast(result.active ? MuseumI18n.t("common_saved") : MuseumI18n.t("common_removed"));
-          if (recordType === "favorites" && !result.active) {
-            card.remove();
-            if (!artifactList.children.length) {
-              emptyNote.textContent = MuseumI18n.t("common_no_records");
-              emptyNote.style.display = "block";
+          if (favoriteButton.dataset.loading === "true") return;
+          favoriteButton.dataset.loading = "true";
+          try {
+            var result = await requestJson("/api/records/favorite/" + encodeURIComponent(record.id), { method: "POST" });
+            record.favorite = !!result.active;
+            favoriteButton.classList.toggle("active", record.favorite);
+            showToast(result.active ? MuseumI18n.t("common_saved") : MuseumI18n.t("common_removed"));
+            if (recordType === "favorites" && !result.active) {
+              card.remove();
+              if (!artifactList.children.length) {
+                emptyNote.textContent = MuseumI18n.t("common_no_records");
+                emptyNote.style.display = "block";
+              }
             }
+          } finally {
+            favoriteButton.dataset.loading = "false";
           }
         });
 

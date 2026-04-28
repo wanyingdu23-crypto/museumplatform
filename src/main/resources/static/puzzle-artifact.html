@@ -63,7 +63,7 @@
     document.getElementById("closeButton").addEventListener("click",nextPuzzleAndReturn);
     document.getElementById("exitButton").addEventListener("click",function(){window.location.href="home.html"});
     document.getElementById("continueButton").addEventListener("click",nextPuzzleAndReturn);
-    document.getElementById("favoriteButton").addEventListener("click",async function(){if(!currentArtifact)return;var result=await requestJson("/api/puzzle/favorite/"+encodeURIComponent(currentArtifact.id),{method:"POST"});this.classList.toggle("active",!!result.active);showToast(result.active?"Saved. View it in My Profile - Favorites.":"Removed from favorites.");});
+    document.getElementById("favoriteButton").addEventListener("click",async function(){if(!currentArtifact||this.dataset.loading==="true")return;this.dataset.loading="true";try{var result=await requestJson("/api/puzzle/favorite/"+encodeURIComponent(currentArtifact.id),{method:"POST"});currentArtifact.favorite=!!result.active;this.classList.toggle("active",currentArtifact.favorite);showToast(result.active?MuseumI18n.t("common_saved"):MuseumI18n.t("common_removed"));}finally{this.dataset.loading="false";}});
     window.addEventListener("load",async function(){document.getElementById("exitButton").textContent=MuseumI18n.getLanguage()==="zh"?"退出":"Exit";document.getElementById("continueButton").textContent=MuseumI18n.getLanguage()==="zh"?"继续游戏":"Continue Game";var artifact=await requestJson("/api/puzzle/artifact",{method:"GET"});setArtifact(artifact);});
   </script>
 </body>

@@ -242,9 +242,16 @@
     document.getElementById("continueButton").addEventListener("click", nextRoundAndReturn);
     document.getElementById("favoriteButton").addEventListener("click", async function () {
       if (!currentArtifact) return;
-      var result = await requestJson("/api/turtle-soup/favorite/" + encodeURIComponent(currentArtifact.id), { method: "POST" });
-      this.classList.toggle("active", !!result.active);
-      showToast(result.active ? "Saved. View it in My Profile - Favorites." : "Removed from favorites.");
+      if (this.dataset.loading === "true") return;
+      this.dataset.loading = "true";
+      try {
+        var result = await requestJson("/api/turtle-soup/favorite/" + encodeURIComponent(currentArtifact.id), { method: "POST" });
+        currentArtifact.favorite = !!result.active;
+        this.classList.toggle("active", currentArtifact.favorite);
+        showToast(result.active ? MuseumI18n.t("common_saved") : MuseumI18n.t("common_removed"));
+      } finally {
+        this.dataset.loading = "false";
+      }
     });
 
     window.addEventListener("load", async function () {
