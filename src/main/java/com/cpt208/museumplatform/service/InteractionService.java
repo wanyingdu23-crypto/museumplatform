@@ -3,11 +3,13 @@ package com.cpt208.museumplatform.service;
 import com.cpt208.museumplatform.dto.PuzzleFinishResponse;
 import com.cpt208.museumplatform.dto.PuzzleGameResponse;
 import com.cpt208.museumplatform.entity.ArtifactEntity;
+import com.cpt208.museumplatform.entity.PuzzleArtifactEntity;
 import com.cpt208.museumplatform.entity.UserArtifactRecordEntity;
 import com.cpt208.museumplatform.entity.UserFavoriteEntity;
 import com.cpt208.museumplatform.model.ArtifactDetail;
 import com.cpt208.museumplatform.model.ArtifactRecord;
 import com.cpt208.museumplatform.repository.ArtifactRepository;
+import com.cpt208.museumplatform.repository.PuzzleArtifactRepository;
 import com.cpt208.museumplatform.repository.UserArtifactRecordRepository;
 import com.cpt208.museumplatform.repository.UserFavoriteRepository;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class InteractionService {
 
     private final ArtifactRepository artifactRepository;
+    private final PuzzleArtifactRepository puzzleArtifactRepository;
     private final DeepSeekService deepSeekService;
     private final UserFavoriteRepository userFavoriteRepository;
     private final UserArtifactRecordRepository userArtifactRecordRepository;
@@ -35,11 +38,13 @@ public class InteractionService {
 
     public InteractionService(
         ArtifactRepository artifactRepository,
+        PuzzleArtifactRepository puzzleArtifactRepository,
         DeepSeekService deepSeekService,
         UserFavoriteRepository userFavoriteRepository,
         UserArtifactRecordRepository userArtifactRecordRepository
     ) {
         this.artifactRepository = artifactRepository;
+        this.puzzleArtifactRepository = puzzleArtifactRepository;
         this.deepSeekService = deepSeekService;
         this.userFavoriteRepository = userFavoriteRepository;
         this.userArtifactRecordRepository = userArtifactRecordRepository;
@@ -92,7 +97,7 @@ public class InteractionService {
     }
 
     public PuzzleGameResponse getPuzzleGame(Long userId, String lang) {
-        ArtifactEntity artifact = getOrAssignCurrentPuzzleArtifact(userId);
+        PuzzleArtifactEntity artifact = getOrAssignCurrentPuzzleArtifact(userId);
         List<Integer> order = new ArrayList<>(List.of(0, 1, 2, 3, 4, 5, 6, 7, 8));
         Collections.shuffle(order);
         return new PuzzleGameResponse(order, toDetail(userId, artifact, lang));
@@ -128,24 +133,39 @@ public class InteractionService {
             return new PuzzleFinishResponse(false, "The puzzle is not complete yet.", null);
         }
 
-        ArtifactEntity artifact = getOrAssignCurrentPuzzleArtifact(userId);
+        PuzzleArtifactEntity artifact = getOrAssignCurrentPuzzleArtifact(userId);
         saveRecordIfAbsent(userId, artifact.getId(), "puzzle");
         return new PuzzleFinishResponse(true, "Puzzle completed.", toDetail(userId, artifact, lang));
     }
 
     public List<ArtifactDetail> getOfflineArtifacts(Long userId, String lang) {
-        ArtifactEntity scannedArtifact = assignRandomArtifactToOfflineScan(userId);
-        List<ArtifactEntity> candidates = artifactRepository.findByCategoryIgnoreCase(scannedArtifact.getCategory());
+        ArtifactPayload scannedArtifact = assignRandomArtifactToOfflineScan(userId, lang);
+        List<ArtifactEntity> candidates = artifactRepository.findByCategoryIgnoreCase(scannedArtifact.category());
         List<ArtifactDetail> results = new ArrayList<>();
         for (ArtifactEntity candidate : candidates) {
             results.add(toDetail(userId, candidate, lang));
+        }
+        for (PuzzleArtifactEntity candidate : puzzleArtifactRepository.findByCategoryIgnoreCase(scannedArtifact.category())) {
+            if (results.stream().noneMatch(item -> item.getId().equals(candidate.getId()))) {
+                results.add(toDetail(userId, candidate, lang));
+            }
         }
         if (results.size() < 2) {
             for (ArtifactEntity artifact : artifactRepository.findAll()) {
                 if (results.stream().noneMatch(item -> item.getId().equals(artifact.getId()))) {
                     results.add(toDetail(userId, artifact, lang));
                 }
-                if (results.size() >= 3) {
+                if (results.size() >= 4) {
+                    break;
+                }
+            }
+        }
+        if (results.size() < 2) {
+            for (PuzzleArtifactEntity artifact : puzzleArtifactRepository.findAll()) {
+                if (results.stream().noneMatch(item -> item.getId().equals(artifact.getId()))) {
+                    results.add(toDetail(userId, artifact, lang));
+                }
+                if (results.size() >= 4) {
                     break;
                 }
             }
@@ -158,20 +178,20 @@ public class InteractionService {
         if (prompt.isBlank()) {
             throw new IllegalArgumentException("Please enter your question.");
         }
-        ArtifactEntity artifact = getOrAssignOfflineArtifact(userId);
-        return deepSeekService.askArtifactAssistant(artifact.getTitle(), artifact.getDescription(), prompt);
+        ArtifactPayload artifact = getOrAssignOfflineArtifact(userId);
+        return deepSeekService.askArtifactAssistant(artifact.title(), artifact.description(), prompt);
     }
 
     public FavoriteToggleResponseData toggleFavorite(Long userId, Long artifactId) {
-        ArtifactEntity artifact = artifactRepository.findById(artifactId)
+        ArtifactPayload artifact = findArtifactPayload(artifactId, "en")
             .orElseThrow(() -> new IllegalArgumentException("Artifact not found."));
 
         boolean active;
-        if (userFavoriteRepository.existsByUserIdAndArtifactId(userId, artifact.getId())) {
-            userFavoriteRepository.deleteByUserIdAndArtifactId(userId, artifact.getId());
+        if (userFavoriteRepository.existsByUserIdAndArtifactId(userId, artifact.id())) {
+            userFavoriteRepository.deleteByUserIdAndArtifactId(userId, artifact.id());
             active = false;
         } else {
-            userFavoriteRepository.save(new UserFavoriteEntity(userId, artifact.getId(), LocalDateTime.now()));
+            userFavoriteRepository.save(new UserFavoriteEntity(userId, artifact.id(), LocalDateTime.now()));
             active = true;
         }
         return new FavoriteToggleResponseData(active, active ? "Saved. View it in My Profile - Favorites." : "Removed from favorites.");
@@ -193,15 +213,15 @@ public class InteractionService {
     private List<ArtifactRecord> buildHistoryRecords(Long userId, String type, String lang) {
         List<ArtifactRecord> records = new ArrayList<>();
         for (UserArtifactRecordEntity record : userArtifactRecordRepository.findByUserIdAndRecordTypeOrderByCreatedAtDesc(userId, type)) {
-            artifactRepository.findById(record.getArtifactId()).ifPresent(artifact -> records.add(
+            findArtifactPayload(record.getArtifactId(), lang).ifPresent(artifact -> records.add(
                 new ArtifactRecord(
-                    artifact.getId(),
+                    artifact.id(),
                     type,
-                    artifact.getTitleByLanguage(normalizeLang(lang)),
-                    artifact.getImageLabelByLanguage(normalizeLang(lang)),
-                    artifact.getImageUrl(),
-                    artifact.getDescriptionByLanguage(normalizeLang(lang)),
-                    isFavorite(userId, artifact.getId())
+                    artifact.title(),
+                    artifact.imageLabel(),
+                    artifact.imageUrl(),
+                    artifact.description(),
+                    isFavorite(userId, artifact.id())
                 )
             ));
         }
@@ -211,14 +231,14 @@ public class InteractionService {
     private List<ArtifactRecord> buildFavoriteRecords(Long userId, String lang) {
         List<ArtifactRecord> records = new ArrayList<>();
         for (UserFavoriteEntity favorite : userFavoriteRepository.findByUserIdOrderByCreatedAtDesc(userId)) {
-            artifactRepository.findById(favorite.getArtifactId()).ifPresent(artifact -> records.add(
+            findArtifactPayload(favorite.getArtifactId(), lang).ifPresent(artifact -> records.add(
                 new ArtifactRecord(
-                    artifact.getId(),
+                    artifact.id(),
                     "favorites",
-                    artifact.getTitleByLanguage(normalizeLang(lang)),
-                    artifact.getImageLabelByLanguage(normalizeLang(lang)),
-                    artifact.getImageUrl(),
-                    artifact.getDescriptionByLanguage(normalizeLang(lang)),
+                    artifact.title(),
+                    artifact.imageLabel(),
+                    artifact.imageUrl(),
+                    artifact.description(),
                     true
                 )
             ));
@@ -231,20 +251,20 @@ public class InteractionService {
         return artifactRepository.findById(artifactId).orElseGet(this::chooseRandomArtifact);
     }
 
-    private ArtifactEntity getOrAssignCurrentPuzzleArtifact(Long userId) {
-        Long artifactId = currentPuzzleArtifactIdByUser.computeIfAbsent(userId, ignored -> chooseRandomArtifact().getId());
-        return artifactRepository.findById(artifactId).orElseGet(this::chooseRandomArtifact);
+    private PuzzleArtifactEntity getOrAssignCurrentPuzzleArtifact(Long userId) {
+        Long artifactId = currentPuzzleArtifactIdByUser.computeIfAbsent(userId, ignored -> chooseRandomPuzzleArtifact().getId());
+        return puzzleArtifactRepository.findById(artifactId).orElseGet(this::chooseRandomPuzzleArtifact);
     }
 
-    private ArtifactEntity assignRandomArtifactToOfflineScan(Long userId) {
-        ArtifactEntity artifact = chooseRandomArtifact();
-        currentOfflineArtifactIdByUser.put(userId, artifact.getId());
+    private ArtifactPayload assignRandomArtifactToOfflineScan(Long userId, String lang) {
+        ArtifactPayload artifact = chooseRandomOfflineArtifact(lang);
+        currentOfflineArtifactIdByUser.put(userId, artifact.id());
         return artifact;
     }
 
-    private ArtifactEntity getOrAssignOfflineArtifact(Long userId) {
-        Long artifactId = currentOfflineArtifactIdByUser.computeIfAbsent(userId, ignored -> chooseRandomArtifact().getId());
-        return artifactRepository.findById(artifactId).orElseGet(this::chooseRandomArtifact);
+    private ArtifactPayload getOrAssignOfflineArtifact(Long userId) {
+        Long artifactId = currentOfflineArtifactIdByUser.computeIfAbsent(userId, ignored -> chooseRandomOfflineArtifact("en").id());
+        return findArtifactPayload(artifactId, "en").orElseGet(() -> chooseRandomOfflineArtifact("en"));
     }
 
     private ArtifactEntity chooseRandomArtifact() {
@@ -254,6 +274,30 @@ public class InteractionService {
         }
         Collections.shuffle(artifacts);
         return artifacts.getFirst();
+    }
+
+    private PuzzleArtifactEntity chooseRandomPuzzleArtifact() {
+        List<PuzzleArtifactEntity> artifacts = puzzleArtifactRepository.findAll();
+        if (artifacts.isEmpty()) {
+            throw new IllegalStateException("No puzzle artifacts are available.");
+        }
+        Collections.shuffle(artifacts);
+        return artifacts.getFirst();
+    }
+
+    private ArtifactPayload chooseRandomOfflineArtifact(String lang) {
+        List<ArtifactPayload> combined = new ArrayList<>();
+        for (ArtifactEntity artifact : artifactRepository.findAll()) {
+            combined.add(toPayload(artifact, lang));
+        }
+        for (PuzzleArtifactEntity artifact : puzzleArtifactRepository.findAll()) {
+            combined.add(toPayload(artifact, lang));
+        }
+        if (combined.isEmpty()) {
+            throw new IllegalStateException("No artifacts are available.");
+        }
+        Collections.shuffle(combined);
+        return combined.getFirst();
     }
 
     private void saveRecordIfAbsent(Long userId, Long artifactId, String recordType) {
@@ -274,8 +318,61 @@ public class InteractionService {
         );
     }
 
+    private ArtifactDetail toDetail(Long userId, PuzzleArtifactEntity artifact, String lang) {
+        return new ArtifactDetail(
+            artifact.getId(),
+            artifact.getTitleByLanguage(normalizeLang(lang)),
+            artifact.getImageLabelByLanguage(normalizeLang(lang)),
+            artifact.getImageUrl(),
+            artifact.getThumbnailUrl(),
+            artifact.getDescriptionByLanguage(normalizeLang(lang)),
+            isFavorite(userId, artifact.getId())
+        );
+    }
+
+    private ArtifactPayload toPayload(ArtifactEntity artifact, String lang) {
+        return new ArtifactPayload(
+            artifact.getId(),
+            artifact.getTitleByLanguage(normalizeLang(lang)),
+            artifact.getImageLabelByLanguage(normalizeLang(lang)),
+            artifact.getImageUrl(),
+            artifact.getThumbnailUrl(),
+            artifact.getDescriptionByLanguage(normalizeLang(lang)),
+            artifact.getCategory()
+        );
+    }
+
+    private ArtifactPayload toPayload(PuzzleArtifactEntity artifact, String lang) {
+        return new ArtifactPayload(
+            artifact.getId(),
+            artifact.getTitleByLanguage(normalizeLang(lang)),
+            artifact.getImageLabelByLanguage(normalizeLang(lang)),
+            artifact.getImageUrl(),
+            artifact.getThumbnailUrl(),
+            artifact.getDescriptionByLanguage(normalizeLang(lang)),
+            artifact.getCategory()
+        );
+    }
+
+    private java.util.Optional<ArtifactPayload> findArtifactPayload(Long artifactId, String lang) {
+        return artifactRepository.findById(artifactId)
+            .map(artifact -> toPayload(artifact, lang))
+            .or(() -> puzzleArtifactRepository.findById(artifactId).map(artifact -> toPayload(artifact, lang)));
+    }
+
     private String normalizeLang(String lang) {
         return "zh".equalsIgnoreCase(lang) ? "zh" : "en";
+    }
+
+    private record ArtifactPayload(
+        Long id,
+        String title,
+        String imageLabel,
+        String imageUrl,
+        String thumbnailUrl,
+        String description,
+        String category
+    ) {
     }
 
     public record TurtleScenario(String title, String helperText, ArtifactDetail artifact) {
