@@ -187,6 +187,14 @@
     .back-link:hover {
       color: var(--text);
     }
+
+    .message {
+      min-height: 22px;
+      margin-top: 10px;
+      color: #b42318;
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
   </style>
 </head>
 <body>
@@ -217,13 +225,21 @@
 
       <button class="button" type="submit">Login</button>
     </form>
+    <p class="message" id="formMessage" aria-live="polite"></p>
 
     <a class="back-link" href="welcome.html?skipSplash=1">Back</a>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script>
+    if (window.location.protocol === "file:") {
+      var loginFileTarget = "http://127.0.0.1:8080/login.html" + window.location.search + window.location.hash;
+      window.location.replace(loginFileTarget);
+    }
+
     var togglePasswordButton = document.getElementById("togglePasswordButton");
     var passwordInput = document.getElementById("password");
+    var formMessage = document.getElementById("formMessage");
 
     togglePasswordButton.addEventListener("click", function () {
       var showing = passwordInput.type === "text";
@@ -231,14 +247,45 @@
       togglePasswordButton.innerHTML = showing
         ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12C4.7 7.9 8 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C19.3 16.1 16 18.2 12 18.2C8 18.2 4.7 16.1 2.5 12Z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>'
         : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4L21 20"></path><path d="M10.6 6.1C11 5.9 11.5 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C20.6 13.6 19.5 14.9 18.2 15.9"></path><path d="M14.8 13.1C14.4 14.2 13.3 15 12 15C10.3 15 9 13.7 9 12C9 10.7 9.8 9.6 10.9 9.2"></path><path d="M7.2 8.1C5.9 9.1 4.8 10.4 3.9 12C6.1 16.1 8.8 18.2 12 18.2C12.8 18.2 13.5 18.1 14.2 17.9"></path></svg>';
-      togglePasswordButton.setAttribute("aria-label", showing ? "Show password" : "Hide password");
+      togglePasswordButton.setAttribute("aria-label", showing ? MuseumI18n.t("show_password") : MuseumI18n.t("hide_password"));
     });
 
-    document.getElementById("loginForm").addEventListener("submit", function (event) {
+    function setMessage(message) {
+      formMessage.textContent = message || "";
+    }
+
+    async function requestJson(url, options) {
+      var response = await fetch(url, options);
+      var data = await response.json().catch(function () {
+        return { success: false, message: "Unexpected server response." };
+      });
+      if (!response.ok) {
+        throw new Error(data.message || "Request failed.");
+      }
+      return data;
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async function (event) {
       event.preventDefault();
-      window.localStorage.setItem("museumStoriesPassword", passwordInput.value || "********");
-      window.location.href = "home.html";
+      setMessage("");
+
+      try {
+        await requestJson("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            account: document.getElementById("account").value.trim(),
+            password: passwordInput.value
+          })
+        });
+        window.location.href = "home.html";
+      } catch (error) {
+        setMessage(error.message);
+      }
     });
+
+    MuseumI18n.applyPage("login");
+    togglePasswordButton.setAttribute("aria-label", MuseumI18n.t("show_password"));
   </script>
 </body>
 </html>

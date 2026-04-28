@@ -65,6 +65,11 @@
     <p class="brand">MUSEUM</p>
   </main>
   <script>
+    if (window.location.protocol === "file:") {
+      var splashFileTarget = "http://127.0.0.1:8080/index.html" + window.location.search + window.location.hash;
+      window.location.replace(splashFileTarget);
+    }
+
     var params = new URLSearchParams(window.location.search);
     var nextPage = params.get("next") || "welcome.html";
 

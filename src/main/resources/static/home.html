@@ -149,6 +149,30 @@
       background: #fafafa;
     }
 
+    .lang-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 62px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .lang-btn:hover {
+      transform: translateY(-1px);
+      background: #fafafa;
+      color: var(--text);
+    }
+
     .avatar-icon {
       width: 22px;
       height: 22px;
@@ -184,23 +208,11 @@
       position: relative;
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: rgba(255, 255, 255, 0.88);
-      font-size: 0.92rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-    }
-
-    .hero-card:nth-child(1) {
-      background: linear-gradient(135deg, #3a3a3a 0%, #797979 48%, #c9c9c9 100%);
-    }
-
-    .hero-card:nth-child(2) {
-      background: linear-gradient(135deg, #4a4a4a 0%, #8d8d8d 45%, #dfdfdf 100%);
-    }
-
-    .hero-card:nth-child(3) {
-      background: linear-gradient(135deg, #2b2b2b 0%, #676767 46%, #d0d0d0 100%);
+      justify-content: flex-start;
+      background-color: #efefeb;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
 
     .hero-card::after {
@@ -211,8 +223,7 @@
     }
 
     .hero-label {
-      position: relative;
-      z-index: 1;
+      display: none;
     }
 
     .hero-dots {
@@ -434,6 +445,7 @@
       </div>
 
       <div class="topbar-actions">
+        <button class="lang-btn" id="languageToggle" type="button">中/ENG</button>
         <button class="feedback-btn" id="feedbackButton" type="button" aria-label="Open feedback">
           <svg class="feedback-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 4.5H15.5V19.5H5V4.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
@@ -453,11 +465,11 @@
 
     <section class="hero-strip" aria-label="Featured stories">
       <div class="hero-track" id="heroTrack">
-        <div class="hero-card" data-clone="last"><span class="hero-label">Image Placeholder 3</span></div>
-        <div class="hero-card"><span class="hero-label">Image Placeholder 1</span></div>
-        <div class="hero-card"><span class="hero-label">Image Placeholder 2</span></div>
-        <div class="hero-card"><span class="hero-label">Image Placeholder 3</span></div>
-        <div class="hero-card" data-clone="first"><span class="hero-label">Image Placeholder 1</span></div>
+        <div class="hero-card" data-clone="last" style="background-image:url('assets/hero/hero-3.jpg');"><span class="hero-label"></span></div>
+        <div class="hero-card" style="background-image:url('assets/hero/hero-1.jpg');"><span class="hero-label"></span></div>
+        <div class="hero-card" style="background-image:url('assets/hero/hero-2.jpg');"><span class="hero-label"></span></div>
+        <div class="hero-card" style="background-image:url('assets/hero/hero-3.jpg');"><span class="hero-label"></span></div>
+        <div class="hero-card" data-clone="first" style="background-image:url('assets/hero/hero-1.jpg');"><span class="hero-label"></span></div>
       </div>
       <div class="hero-dots" id="heroDots">
         <span class="hero-dot active"></span>
@@ -519,7 +531,13 @@
     </div>
   </div>
 
+  <script src="assets/i18n.js"></script>
   <script>
+    if (window.location.protocol === "file:") {
+      var homeFileTarget = "http://127.0.0.1:8080/home.html" + window.location.search + window.location.hash;
+      window.location.replace(homeFileTarget);
+    }
+
     var heroTrack = document.getElementById("heroTrack");
     var heroDots = Array.prototype.slice.call(document.querySelectorAll(".hero-dot"));
     var feedbackOverlay = document.getElementById("feedbackOverlay");
@@ -569,8 +587,28 @@
       }, 1700);
     }
 
+    async function requestJson(url, options) {
+      var response = await fetch(url, options);
+      var data = await response.json().catch(function () {
+        return { success: false, message: "Unexpected server response." };
+      });
+      if (response.status === 401) {
+        window.location.href = "login.html";
+        throw new Error("Please log in first.");
+      }
+      if (!response.ok) {
+        throw new Error(data.message || "Request failed.");
+      }
+      return data;
+    }
+
     document.getElementById("profileButton").addEventListener("click", function () {
       window.location.href = "profile.html";
+    });
+
+    document.getElementById("languageToggle").addEventListener("click", function () {
+      MuseumI18n.toggleLanguage();
+      MuseumI18n.applyPage("home");
     });
 
     document.getElementById("feedbackButton").addEventListener("click", openFeedbackModal);
@@ -582,13 +620,23 @@
       }
     });
 
-    document.getElementById("feedbackSend").addEventListener("click", function () {
+    document.getElementById("feedbackSend").addEventListener("click", async function () {
       if (!feedbackInput.value.trim()) {
         feedbackInput.focus();
         return;
       }
-      closeFeedbackModal();
-      showToast("Thank you for your suggestion.");
+
+      try {
+        var result = await requestJson("/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ content: feedbackInput.value.trim() })
+        });
+        closeFeedbackModal();
+        showToast(result.message || MuseumI18n.t("home_thanks"));
+      } catch (error) {
+        showToast(error.message);
+      }
     });
 
     document.querySelectorAll(".feature-card").forEach(function (card) {
@@ -623,8 +671,17 @@
       }
     }, { passive: true });
 
-    window.addEventListener("load", function () {
+    window.addEventListener("load", async function () {
+      MuseumI18n.applyPage("home");
+      document.getElementById("toast").textContent = MuseumI18n.t("home_thanks");
       jumpToRealSlide(1);
+      try {
+        await requestJson("/api/auth/me", { method: "GET" });
+      } catch (error) {
+        if (error.message !== "Please log in first.") {
+          showToast(error.message);
+        }
+      }
     });
 
     window.addEventListener("resize", function () {

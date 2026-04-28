@@ -56,8 +56,9 @@
       border: 1px solid var(--border);
       background: var(--surface-solid);
       color: var(--text);
-      font-size: 1.2rem;
+      font-size: 1.4rem;
       font-weight: 700;
+      line-height: 1;
     }
     .close-btn:hover, .favorite-btn:hover, .btn:hover { transform: translateY(-1px); }
     .close-btn:active, .favorite-btn:active, .btn:active { transform: translateY(0); }
@@ -75,14 +76,22 @@
       width: 100%;
       aspect-ratio: 4 / 3;
       border-radius: 20px;
-      border: 1px dashed #d4d4cf;
+      border: 1px solid #e1e1dc;
       background: linear-gradient(135deg, #f9f9f7 0%, #efefeb 100%);
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
       color: var(--muted);
       font-weight: 600;
       margin-bottom: 16px;
+    }
+    .image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      padding: 10px;
     }
     .head {
       display: flex;
@@ -154,41 +163,95 @@
 <body>
   <main class="app-shell">
     <div class="topbar">
-      <button class="close-btn" id="closeButton" type="button" aria-label="Close">×</button>
+      <button class="close-btn" id="closeButton" type="button" aria-label="Close">&times;</button>
     </div>
     <section class="card">
-      <div class="image">Artifact Image Placeholder</div>
+      <div class="image" id="artifactImage">Artifact Image</div>
       <div class="head">
-        <h1 class="title">Artifact Introduction</h1>
+        <h1 class="title" id="artifactTitle">Artifact Introduction</h1>
         <button class="favorite-btn" id="favoriteButton" type="button" aria-label="Toggle favorite">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 2.8L14.8 8.47L21.05 9.38L16.53 13.79L17.6 20L12 17.05L6.4 20L7.47 13.79L2.95 9.38L9.2 8.47L12 2.8Z"></path>
           </svg>
         </button>
       </div>
-      <p class="desc">This is a placeholder introduction for the artifact related to the Turtle Soup answer. Replace this copy with the final museum description later.</p>
+      <p class="desc" id="artifactDesc">This is a placeholder introduction for the artifact related to the Turtle Soup answer.</p>
     </section>
     <div class="actions">
       <button class="btn" id="exitButton" type="button">Exit</button>
       <button class="btn primary" id="continueButton" type="button">Continue Game</button>
     </div>
   </main>
-  <div class="toast" id="pageToast">Saved. You can view it in My Profile -> Favorites.</div>
+  <div class="toast" id="pageToast">Saved. View it in My Profile - Favorites.</div>
+  <script src="assets/i18n.js"></script>
   <script>
+    if (window.location.protocol === "file:") {
+      var turtleArtifactFileTarget = "http://127.0.0.1:8080/turtle-soup-artifact.html" + window.location.search + window.location.hash;
+      window.location.replace(turtleArtifactFileTarget);
+    }
+
     var pageToast = document.getElementById("pageToast");
+    var currentArtifact = null;
     var toastTimer = null;
+
     function showToast(message) {
       pageToast.textContent = message;
       pageToast.classList.add("show");
       if (toastTimer) clearTimeout(toastTimer);
       toastTimer = window.setTimeout(function () { pageToast.classList.remove("show"); }, 1800);
     }
-    document.getElementById("closeButton").addEventListener("click", function () { window.location.href = "turtle-sea.html?round=" + Date.now(); });
+
+    async function requestJson(url, options) {
+      if (url.indexOf("/api/") === 0) {
+        url += (url.indexOf("?") >= 0 ? "&" : "?") + "lang=" + encodeURIComponent(MuseumI18n.getLanguage());
+      }
+      var response = await fetch(url, options);
+      var data = await response.json().catch(function () {
+        return { success: false, message: "Unexpected server response." };
+      });
+      if (response.status === 401) {
+        window.location.href = "login.html";
+        throw new Error("Please log in first.");
+      }
+      if (!response.ok) {
+        throw new Error(data.message || "Request failed.");
+      }
+      return data;
+    }
+
+    function setArtifact(artifact) {
+      currentArtifact = artifact;
+      var imageBox = document.getElementById("artifactImage");
+      if (artifact.imageUrl) {
+        imageBox.innerHTML = '<img src="' + artifact.imageUrl + '" alt="' + (artifact.title || "Artifact Image") + '">';
+      } else {
+        imageBox.textContent = artifact.imageLabel || "Artifact Image";
+      }
+      document.getElementById("artifactTitle").textContent = artifact.title || "Artifact Introduction";
+      document.getElementById("artifactDesc").textContent = artifact.description || "";
+      document.getElementById("favoriteButton").classList.toggle("active", !!artifact.favorite);
+    }
+
+    async function nextRoundAndReturn() {
+      await requestJson("/api/turtle-soup/next", { method: "POST" });
+      window.location.href = "turtle-sea.html?round=" + Date.now();
+    }
+
+    document.getElementById("closeButton").addEventListener("click", nextRoundAndReturn);
     document.getElementById("exitButton").addEventListener("click", function () { window.location.href = "home.html"; });
-    document.getElementById("continueButton").addEventListener("click", function () { window.location.href = "turtle-sea.html"; });
-    document.getElementById("favoriteButton").addEventListener("click", function () {
-      var active = this.classList.toggle("active");
-      if (active) showToast("Saved. You can view it in My Profile -> Favorites.");
+    document.getElementById("continueButton").addEventListener("click", nextRoundAndReturn);
+    document.getElementById("favoriteButton").addEventListener("click", async function () {
+      if (!currentArtifact) return;
+      var result = await requestJson("/api/turtle-soup/favorite/" + encodeURIComponent(currentArtifact.id), { method: "POST" });
+      this.classList.toggle("active", !!result.active);
+      showToast(result.active ? "Saved. View it in My Profile - Favorites." : "Removed from favorites.");
+    });
+
+    window.addEventListener("load", async function () {
+      document.getElementById("exitButton").textContent = MuseumI18n.getLanguage() === "zh" ? "退出" : "Exit";
+      document.getElementById("continueButton").textContent = MuseumI18n.getLanguage() === "zh" ? "继续游戏" : "Continue Game";
+      var artifact = await requestJson("/api/turtle-soup/artifact", { method: "GET" });
+      setArtifact(artifact);
     });
   </script>
 </body>

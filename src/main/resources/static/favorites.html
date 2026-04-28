@@ -160,7 +160,7 @@
       width: 96px;
       height: 96px;
       border-radius: 22px;
-      border: 1px dashed #d4d4cf;
+      border: 1px solid #e1e1dc;
       background: linear-gradient(135deg, #f9f9f7 0%, #efefeb 100%);
       display: flex;
       align-items: center;
@@ -172,6 +172,15 @@
       padding: 10px;
       position: relative;
       overflow: hidden;
+    }
+
+    .artifact-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: relative;
+      z-index: 1;
     }
 
     .artifact-image::after {
@@ -212,6 +221,10 @@
       height: 20px;
       flex-shrink: 0;
       color: transparent;
+      border: none;
+      background: transparent;
+      padding: 0;
+      cursor: pointer;
     }
 
     .favorite-star svg {
@@ -275,6 +288,33 @@
       padding: 22px 10px 8px;
     }
 
+    .toast {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 210px;
+      max-width: 82%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(17, 17, 17, 0.92);
+      color: #ffffff;
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      box-shadow: 0 16px 36px rgba(17, 17, 17, 0.18);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease;
+      z-index: 25;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
     @media (max-width: 360px) {
       .app-shell {
         border-radius: 24px;
@@ -307,112 +347,90 @@
       <section class="artifact-list" id="artifactList"></section>
       <p class="empty-note" id="emptyNote" style="display:none;">No records yet.</p>
     </div>
+    <div class="toast" id="pageToast">Saved. View it in My Profile - Favorites.</div>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script>
-    var recordConfigs = {
-      favorites: {
-        title: "Favorites",
-        subtitle: "All collected artifacts are shown here.",
-        showFavorite: true,
-        records: [
-          {
-            title: "Bronze Mirror",
-            image: "Artifact Image",
-            text: "A reflective bronze mirror with decorative patterns. This placeholder introduction can later be replaced with the museum's full curatorial description."
-          },
-          {
-            title: "Ceramic Figure",
-            image: "Artifact Image",
-            text: "A small ceramic figure preserved as part of the collection. Use this area to display the full introduction for every artifact that has been favorited."
-          },
-          {
-            title: "Gold Ornament",
-            image: "Artifact Image",
-            text: "A gold ornamental object with historical significance. This page now focuses only on the artifact image and introduction for each collected item."
-          }
-        ]
-      },
-      puzzle: {
-        title: "Puzzle History",
-        subtitle: "All puzzle-related artifact records are shown here.",
-        showFavorite: false,
-        records: [
-          {
-            title: "Puzzle Artifact 01",
-            image: "Artifact Image",
-            text: "The related artifact introduction for this completed puzzle round appears here. Replace this placeholder copy with the final museum content later."
-          },
-          {
-            title: "Puzzle Artifact 02",
-            image: "Artifact Image",
-            text: "This card represents another artifact unlocked through the puzzle flow, showing only the image area and the artifact introduction as requested."
-          },
-          {
-            title: "Puzzle Artifact 03",
-            image: "Artifact Image",
-            text: "Use this section to show the full introduction text for every artifact that has appeared through puzzle play history."
-          }
-        ]
-      },
-      turtle: {
-        title: "Turtle Soup History",
-        subtitle: "All Turtle Soup-related artifact records are shown here.",
-        showFavorite: false,
-        records: [
-          {
-            title: "Story Artifact 01",
-            image: "Artifact Image",
-            text: "This card shows the artifact linked to a Turtle Soup round. Only the artifact image and introduction are kept on this page."
-          },
-          {
-            title: "Story Artifact 02",
-            image: "Artifact Image",
-            text: "Another Turtle Soup artifact introduction placeholder. Later this can be replaced with the real museum narrative and AI-generated answer summary."
-          },
-          {
-            title: "Story Artifact 03",
-            image: "Artifact Image",
-            text: "This list displays all related Turtle Soup records as artifact entries, without extra operation buttons or unrelated content."
-          }
-        ]
-      }
-    };
+    if (window.location.protocol === "file:") {
+      var favoritesFileTarget = "http://127.0.0.1:8080/favorites.html" + window.location.search + window.location.hash;
+      window.location.replace(favoritesFileTarget);
+    }
 
     var params = new URLSearchParams(window.location.search);
     var recordType = params.get("type") || "favorites";
-    var config = recordConfigs[recordType] || recordConfigs.favorites;
     var artifactList = document.getElementById("artifactList");
     var emptyNote = document.getElementById("emptyNote");
+    var pageToast = document.getElementById("pageToast");
+    var toastTimer = null;
 
-    function renderPage() {
-      document.title = config.title + " - My Museum Stories";
-      document.getElementById("pageTitle").textContent = config.title;
-      document.getElementById("pageSubtitle").textContent = config.subtitle;
+    function getRecordMeta(type) {
+      var map = {
+        favorites: { titleKey: "records_favorites_title", subtitleKey: "records_favorites_subtitle" },
+        puzzle: { titleKey: "records_puzzle_title", subtitleKey: "records_puzzle_subtitle" },
+        turtle: { titleKey: "records_turtle_title", subtitleKey: "records_turtle_subtitle" }
+      };
+      return map[type] || map.favorites;
+    }
+
+    async function requestJson(url, options) {
+      if (url.indexOf("/api/") === 0) {
+        url += (url.indexOf("?") >= 0 ? "&" : "?") + "lang=" + encodeURIComponent(MuseumI18n.getLanguage());
+      }
+      var response = await fetch(url, options);
+      var data = await response.json().catch(function () {
+        return { success: false, message: MuseumI18n.t("common_unexpected") };
+      });
+      if (response.status === 401) {
+        window.location.href = "login.html";
+        throw new Error("Please log in first.");
+      }
+      if (!response.ok) {
+        throw new Error(data.message || "Request failed.");
+      }
+      return data;
+    }
+
+    function showToast(message) {
+      pageToast.textContent = message;
+      pageToast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function () {
+        pageToast.classList.remove("show");
+      }, 1800);
+    }
+
+    function renderPage(records) {
+      var meta = getRecordMeta(recordType);
+      document.title = MuseumI18n.t("records_title_doc");
+      document.getElementById("pageTitle").textContent = MuseumI18n.t(meta.titleKey);
+      document.getElementById("pageSubtitle").textContent = MuseumI18n.t(meta.subtitleKey);
       artifactList.innerHTML = "";
 
-      if (!config.records.length) {
+      if (!records.length) {
+        emptyNote.textContent = MuseumI18n.t("common_no_records");
         emptyNote.style.display = "block";
         return;
       }
 
       emptyNote.style.display = "none";
 
-      config.records.forEach(function (record) {
+      records.forEach(function (record) {
         var card = document.createElement("article");
         card.className = "artifact-card";
+        var imageHtml = record.imageUrl
+          ? '<div class="artifact-image"><img src="' + record.imageUrl + '" alt="' + record.title + '"></div>'
+          : '<div class="artifact-image"><span class="artifact-label">' + record.imageLabel + '</span></div>';
         card.innerHTML =
-          '<div class="artifact-image"><span class="artifact-label">' + record.image + '</span></div>' +
+          imageHtml +
           '<div class="artifact-body">' +
             '<div class="artifact-head">' +
               '<h2 class="artifact-title">' + record.title + '</h2>' +
-              (config.showFavorite
-                ? '<span class="favorite-star active" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.8L14.8 8.47L21.05 9.38L16.53 13.79L17.6 20L12 17.05L6.4 20L7.47 13.79L2.95 9.38L9.2 8.47L12 2.8Z"></path></svg></span>'
-                : '') +
+              '<button class="favorite-star ' + (record.favorite ? 'active' : '') + '" type="button" aria-label="Toggle favorite" data-artifact-id="' + record.id + '"><svg viewBox="0 0 24 24"><path d="M12 2.8L14.8 8.47L21.05 9.38L16.53 13.79L17.6 20L12 17.05L6.4 20L7.47 13.79L2.95 9.38L9.2 8.47L12 2.8Z"></path></svg></button>' +
             '</div>' +
             '<div class="artifact-text-wrap">' +
-              '<p class="artifact-text">' + record.text + '</p>' +
-              '<button class="artifact-toggle" type="button">..Expand</button>' +
+              '<p class="artifact-text">' + record.description + '</p>' +
+              '<button class="artifact-toggle" type="button">' + MuseumI18n.t("common_expand") + '</button>' +
             '</div>' +
           '</div>';
         artifactList.appendChild(card);
@@ -423,10 +441,10 @@
         function updateOverflowState() {
           if (text.scrollHeight > text.clientHeight + 2 && !text.classList.contains("expanded")) {
             toggle.classList.add("show");
-            toggle.textContent = "..Expand";
+            toggle.textContent = MuseumI18n.t("common_expand");
           } else if (text.classList.contains("expanded")) {
             toggle.classList.add("show");
-            toggle.textContent = "Collapse";
+            toggle.textContent = MuseumI18n.t("common_collapse");
           } else {
             toggle.classList.remove("show");
           }
@@ -437,6 +455,20 @@
           updateOverflowState();
         });
 
+        var favoriteButton = card.querySelector(".favorite-star");
+        favoriteButton.addEventListener("click", async function () {
+          var result = await requestJson("/api/records/favorite/" + encodeURIComponent(record.id), { method: "POST" });
+          favoriteButton.classList.toggle("active", !!result.active);
+          showToast(result.active ? MuseumI18n.t("common_saved") : MuseumI18n.t("common_removed"));
+          if (recordType === "favorites" && !result.active) {
+            card.remove();
+            if (!artifactList.children.length) {
+              emptyNote.textContent = MuseumI18n.t("common_no_records");
+              emptyNote.style.display = "block";
+            }
+          }
+        });
+
         window.requestAnimationFrame(updateOverflowState);
       });
     }
@@ -445,7 +477,11 @@
       window.location.href = "profile.html";
     });
 
-    renderPage();
+    (async function () {
+      pageToast.textContent = MuseumI18n.t("common_saved");
+      var records = await requestJson("/api/records?type=" + encodeURIComponent(recordType), { method: "GET" });
+      renderPage(records);
+    })();
   </script>
 </body>
 </html>

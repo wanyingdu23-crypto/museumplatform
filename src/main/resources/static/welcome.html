@@ -173,7 +173,13 @@
     </div>
   </main>
 
+  <script src="assets/i18n.js"></script>
   <script>
+    if (window.location.protocol === "file:") {
+      var welcomeFileTarget = "http://127.0.0.1:8080/welcome.html" + window.location.search + window.location.hash;
+      window.location.replace(welcomeFileTarget);
+    }
+
     var welcomeParams = new URLSearchParams(window.location.search);
     var shouldSkipSplash = welcomeParams.get("skipSplash") === "1";
 
@@ -198,6 +204,8 @@
     document.getElementById("registerButton").addEventListener("click", function () {
       window.location.href = "register.html";
     });
+
+    MuseumI18n.applyPage("welcome");
   </script>
 </body>
 </html>

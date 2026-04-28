@@ -18,31 +18,14 @@
       --overlay: rgba(17, 17, 17, 0.26);
       --warning: #eab308;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html,
-    body {
-      height: 100%;
-      overflow: hidden;
-      -webkit-text-size-adjust: 100%;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; -webkit-text-size-adjust: 100%; }
     body {
       font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
       color: var(--text);
       background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
-      padding:
-        max(18px, env(safe-area-inset-top))
-        max(16px, env(safe-area-inset-right))
-        max(24px, env(safe-area-inset-bottom))
-        max(16px, env(safe-area-inset-left));
+      padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     }
-
     .app-shell {
       position: relative;
       width: 100%;
@@ -60,363 +43,78 @@
       gap: 14px;
       overflow: hidden;
     }
-
-    .topbar {
-      display: flex;
-      justify-content: flex-end;
-      flex-shrink: 0;
-    }
-
-    .close-btn,
-    .secondary-btn,
-    .primary-btn,
-    .modal-btn,
-    .send-btn,
-    .favorite-btn {
+    .topbar { display: flex; justify-content: flex-end; flex-shrink: 0; }
+    .close-btn, .secondary-btn, .primary-btn, .modal-btn, .send-btn, .favorite-btn {
       cursor: pointer;
       transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
       -webkit-tap-highlight-color: transparent;
       touch-action: manipulation;
     }
-
     .close-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: var(--surface-solid);
-      color: var(--text);
-      font-size: 1.4rem;
-      font-weight: 700;
-      line-height: 1;
+      width: 42px; height: 42px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-solid); color: var(--text); font-size: 1.4rem; font-weight: 700; line-height: 1;
     }
-
-    .close-btn:hover,
-    .secondary-btn:hover,
-    .primary-btn:hover,
-    .modal-btn:hover,
-    .send-btn:hover,
-    .favorite-btn:hover {
-      transform: translateY(-1px);
+    .close-btn:hover, .secondary-btn:hover, .primary-btn:hover, .modal-btn:hover, .send-btn:hover, .favorite-btn:hover { transform: translateY(-1px); }
+    .close-btn:active, .secondary-btn:active, .primary-btn:active, .modal-btn:active, .send-btn:active, .favorite-btn:active { transform: translateY(0); }
+    .chat-panel, .artifact-panel {
+      flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 24px; background: var(--surface-solid); box-shadow: var(--card-shadow); overflow: hidden;
     }
-
-    .close-btn:active,
-    .secondary-btn:active,
-    .primary-btn:active,
-    .modal-btn:active,
-    .send-btn:active,
-    .favorite-btn:active {
-      transform: translateY(0);
-    }
-
-    .chat-panel,
-    .artifact-panel {
-      flex: 1;
-      min-height: 0;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      background: var(--surface-solid);
-      box-shadow: var(--card-shadow);
-      overflow: hidden;
-    }
-
-    .chat-panel {
-      display: flex;
-      flex-direction: column;
-    }
-
+    .chat-panel { display: flex; flex-direction: column; }
     .chat-scroll {
-      flex: 1;
-      min-height: 0;
-      padding: 18px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-      overscroll-behavior: contain;
+      flex: 1; min-height: 0; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; overscroll-behavior: contain;
     }
-
-    .chat-empty {
-      flex: 1;
-    }
-
-    .message {
-      max-width: 84%;
-      padding: 13px 14px;
-      border-radius: 18px;
-      line-height: 1.65;
-      font-size: 0.96rem;
-      word-break: break-word;
-    }
-
-    .message-user {
-      align-self: flex-end;
-      background: #111111;
-      color: #ffffff;
-      border-bottom-right-radius: 8px;
-    }
-
-    .message-system {
-      align-self: flex-start;
-      background: var(--surface-soft);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 8px;
-    }
-
-    .artifact-panel {
-      display: none;
-      padding: 18px 16px;
-      overflow-y: auto;
-    }
-
-    .artifact-panel.show {
-      display: block;
-    }
-
+    .chat-empty { flex: 1; }
+    .message { max-width: 84%; padding: 13px 14px; border-radius: 18px; line-height: 1.65; font-size: 0.96rem; word-break: break-word; }
+    .message-user { align-self: flex-end; background: #111111; color: #ffffff; border-bottom-right-radius: 8px; }
+    .message-system { align-self: flex-start; background: var(--surface-soft); color: var(--text); border: 1px solid var(--border); border-bottom-left-radius: 8px; }
+    .artifact-panel { display: none; padding: 18px 16px; overflow-y: auto; }
+    .artifact-panel.show { display: block; }
     .artifact-image {
-      width: 100%;
-      aspect-ratio: 4 / 3;
-      border-radius: 20px;
-      border: 1px dashed #d4d4cf;
-      background: linear-gradient(135deg, #f9f9f7 0%, #efefeb 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 16px;
+      width: 100%; aspect-ratio: 4 / 3; border-radius: 20px; border: 1px solid #e1e1dc; background: linear-gradient(135deg, #f9f9f7 0%, #efefeb 100%); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; overflow:hidden;
     }
-
-    .artifact-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-
-    .artifact-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-    }
-
+    .artifact-image img { width:100%; height:100%; object-fit:contain; display:block; padding:10px; }
+    .artifact-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .artifact-title { font-size: 1.1rem; font-weight: 700; }
     .favorite-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: #ffffff;
-      color: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      width: 36px; height: 36px; border-radius: 12px; border: 1px solid var(--border); background: #ffffff; color: transparent; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     }
-
-    .favorite-btn svg {
-      width: 18px;
-      height: 18px;
-      fill: currentColor;
-      stroke: #b8b8b2;
-      stroke-width: 2.1;
-      stroke-linejoin: round;
+    .favorite-btn svg { width: 18px; height: 18px; fill: currentColor; stroke: #b8b8b2; stroke-width: 2.1; stroke-linejoin: round; }
+    .favorite-btn.active { color: var(--warning); }
+    .favorite-btn.active svg { stroke: var(--warning); }
+    .artifact-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; }
+    .actions { display: grid; grid-template-columns: 1fr; gap: 12px; flex-shrink: 0; }
+    .secondary-btn, .primary-btn {
+      min-height: 54px; border-radius: 18px; font-size: 1rem; font-weight: 700; border: 1px solid var(--border); box-shadow: 0 6px 14px rgba(17, 17, 17, 0.03);
     }
-
-    .favorite-btn.active {
-      color: var(--warning);
-    }
-
-    .favorite-btn.active svg {
-      stroke: var(--warning);
-    }
-
-    .artifact-desc {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.7;
-    }
-
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .secondary-btn,
-    .primary-btn {
-      min-height: 54px;
-      border-radius: 18px;
-      font-size: 1rem;
-      font-weight: 700;
-      border: 1px solid var(--border);
-      box-shadow: 0 6px 14px rgba(17, 17, 17, 0.03);
-    }
-
-    .secondary-btn {
-      background: #ffffff;
-      color: var(--text);
-    }
-
-    .primary-btn {
-      background: #111111;
-      color: #ffffff;
-      border-color: #111111;
-      box-shadow: 0 10px 18px rgba(17, 17, 17, 0.08);
-    }
-
+    .secondary-btn { background: #ffffff; color: var(--text); }
+    .primary-btn { background: #111111; color: #ffffff; border-color: #111111; box-shadow: 0 10px 18px rgba(17, 17, 17, 0.08); }
     .composer {
-      position: fixed;
-      left: 50%;
-      bottom: max(12px, env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      width: min(420px, calc(100vw - 24px));
-      display: none;
-      align-items: flex-end;
-      gap: 10px;
-      padding: 12px;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.96);
-      border: 1px solid rgba(255, 255, 255, 0.96);
-      box-shadow: 0 18px 40px rgba(17, 17, 17, 0.1);
-      backdrop-filter: blur(18px);
-      z-index: 15;
+      position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(420px, calc(100vw - 24px)); display: none; align-items: flex-end; gap: 10px; padding: 12px; border-radius: 22px; background: rgba(255, 255, 255, 0.96); border: 1px solid rgba(255, 255, 255, 0.96); box-shadow: 0 18px 40px rgba(17, 17, 17, 0.1); backdrop-filter: blur(18px); z-index: 15;
     }
-
-    .composer.show {
-      display: flex;
-    }
-
+    .composer.show { display: flex; }
     .composer-input {
-      flex: 1;
-      min-height: 52px;
-      max-height: 120px;
-      padding: 14px 15px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: #fbfbfa;
-      color: var(--text);
-      font: inherit;
-      resize: none;
-      outline: none;
+      flex: 1; min-height: 52px; max-height: 120px; padding: 14px 15px; border-radius: 16px; border: 1px solid var(--border); background: #fbfbfa; color: var(--text); font: inherit; resize: none; outline: none;
     }
-
     .send-btn {
-      min-width: 84px;
-      min-height: 52px;
-      padding: 0 16px;
-      border-radius: 16px;
-      border: 1px solid #111111;
-      background: #111111;
-      color: #ffffff;
-      font-size: 0.95rem;
-      font-weight: 700;
+      min-width: 84px; min-height: 52px; padding: 0 16px; border-radius: 16px; border: 1px solid #111111; background: #111111; color: #ffffff; font-size: 0.95rem; font-weight: 700;
     }
-
     .overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--overlay);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px 16px;
-      z-index: 20;
+      position: fixed; inset: 0; background: var(--overlay); display: none; align-items: center; justify-content: center; padding: 20px 16px; z-index: 20;
     }
-
-    .overlay.show {
-      display: flex;
-    }
-
+    .overlay.show { display: flex; }
     .modal {
-      width: 100%;
-      max-width: 360px;
-      background: rgba(255, 255, 255, 0.98);
-      border: 1px solid rgba(255, 255, 255, 0.95);
-      border-radius: 24px;
-      box-shadow: 0 24px 50px rgba(17, 17, 17, 0.12);
-      padding: 22px 18px 18px;
-      text-align: center;
+      width: 100%; max-width: 360px; background: rgba(255, 255, 255, 0.98); border: 1px solid rgba(255, 255, 255, 0.95); border-radius: 24px; box-shadow: 0 24px 50px rgba(17, 17, 17, 0.12); padding: 22px 18px 18px; text-align: center;
     }
-
-    .modal-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .modal-text {
-      color: var(--muted);
-      font-size: 0.88rem;
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-
-    .modal-actions {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-
+    .modal-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+    .modal-text { color: var(--muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 16px; }
+    .modal-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
     .modal-btn {
-      min-height: 46px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: #ffffff;
-      color: var(--text);
-      font-size: 0.95rem;
-      font-weight: 700;
+      min-height: 46px; border-radius: 16px; border: 1px solid var(--border); background: #ffffff; color: var(--text); font-size: 0.95rem; font-weight: 700;
     }
-
-    .modal-btn.primary {
-      background: #111111;
-      border-color: #111111;
-      color: #ffffff;
-    }
-
+    .modal-btn.primary { background: #111111; border-color: #111111; color: #ffffff; }
     .toast {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      min-width: 210px;
-      max-width: 82%;
-      padding: 14px 16px;
-      border-radius: 18px;
-      background: rgba(17, 17, 17, 0.92);
-      color: #ffffff;
-      text-align: center;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      box-shadow: 0 16px 36px rgba(17, 17, 17, 0.18);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s ease;
-      z-index: 25;
-      pointer-events: none;
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); min-width: 210px; max-width: 82%; padding: 14px 16px; border-radius: 18px; background: rgba(17, 17, 17, 0.92); color: #ffffff; text-align: center; font-size: 0.9rem; line-height: 1.5; box-shadow: 0 16px 36px rgba(17, 17, 17, 0.18); opacity: 0; visibility: hidden; transition: opacity 0.2s ease; z-index: 25; pointer-events: none;
     }
-
-    .toast.show {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    @media (max-width: 360px) {
-      .app-shell {
-        border-radius: 24px;
-        padding: 18px 12px 20px;
-      }
-
-      .modal-actions {
-        grid-template-columns: 1fr;
-      }
-
-      .composer {
-        width: calc(100vw - 20px);
-      }
-    }
+    .toast.show { opacity: 1; visibility: visible; }
   </style>
 </head>
 <body>
@@ -424,46 +122,37 @@
     <div class="topbar">
       <button class="close-btn" id="closeButton" type="button" aria-label="Close">&times;</button>
     </div>
-
     <section class="chat-panel" id="chatPanel">
       <div class="chat-scroll" id="chatScroll">
         <div class="chat-empty" id="chatEmpty"></div>
       </div>
     </section>
-
     <section class="artifact-panel" id="artifactPanel">
-      <div class="artifact-image">Artifact Image Placeholder</div>
+      <div class="artifact-image" id="artifactImage">Artifact Image Placeholder</div>
       <div class="artifact-head">
-        <h2 class="artifact-title">Artifact Introduction</h2>
+        <h2 class="artifact-title" id="artifactTitle">Artifact Introduction</h2>
         <button class="favorite-btn" id="favoriteButton" type="button" aria-label="Toggle favorite">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 2.8L14.8 8.47L21.05 9.38L16.53 13.79L17.6 20L12 17.05L6.4 20L7.47 13.79L2.95 9.38L9.2 8.47L12 2.8Z"></path>
           </svg>
         </button>
       </div>
-      <p class="artifact-desc">
-        This is a placeholder introduction for the artifact related to the Turtle Soup answer. Replace this copy with the final museum description later.
-      </p>
+      <p class="artifact-desc" id="artifactDesc">This is a placeholder introduction for the artifact related to the Turtle Soup answer.</p>
     </section>
-
     <div class="actions" id="gameActions">
       <button class="secondary-btn" id="viewAnswerButton" type="button">View Answer</button>
       <button class="primary-btn" id="submitAnswerButton" type="button">Submit My Answer</button>
     </div>
-
     <div class="actions" id="resultActions" style="display:none;">
       <button class="secondary-btn" id="exitButton" type="button">Exit</button>
       <button class="primary-btn" id="continueGameButton" type="button">Continue Game</button>
     </div>
-
     <div class="toast" id="favoriteToast">Saved. View it in My Profile - Favorites.</div>
   </main>
-
   <div class="composer" id="composer">
     <textarea class="composer-input" id="answerInput" rows="1" placeholder="Type your answer..."></textarea>
     <button class="send-btn" id="sendButton" type="button">Send</button>
   </div>
-
   <div class="overlay" id="leaveModal">
     <div class="modal">
       <h3 class="modal-title">Leave This Page?</h3>
@@ -474,8 +163,13 @@
       </div>
     </div>
   </div>
-
+  <script src="assets/i18n.js"></script>
   <script>
+    if (window.location.protocol === "file:") {
+      var turtleFileTarget = "http://127.0.0.1:8080/turtle-sea.html" + window.location.search + window.location.hash;
+      window.location.replace(turtleFileTarget);
+    }
+
     var leaveModal = document.getElementById("leaveModal");
     var chatScroll = document.getElementById("chatScroll");
     var chatEmpty = document.getElementById("chatEmpty");
@@ -488,15 +182,10 @@
     var favoriteButton = document.getElementById("favoriteButton");
     var favoriteToast = document.getElementById("favoriteToast");
     var toastTimer = null;
-    var correctKeywords = ["bronze mirror", "mirror", "artifact"];
+    var currentArtifact = null;
 
-    function showModal(modal) {
-      modal.classList.add("show");
-    }
-
-    function hideModal(modal) {
-      modal.classList.remove("show");
-    }
+    function showModal(modal) { modal.classList.add("show"); }
+    function hideModal(modal) { modal.classList.remove("show"); }
 
     function appendMessage(text, type) {
       var message = document.createElement("div");
@@ -507,15 +196,8 @@
       chatScroll.scrollTop = chatScroll.scrollHeight;
     }
 
-    function openComposer() {
-      composer.classList.add("show");
-      answerInput.focus();
-    }
-
-    function closeComposer() {
-      composer.classList.remove("show");
-      answerInput.blur();
-    }
+    function openComposer() { composer.classList.add("show"); answerInput.focus(); }
+    function closeComposer() { composer.classList.remove("show"); answerInput.blur(); }
 
     function showArtifactMode() {
       chatPanel.style.display = "none";
@@ -525,56 +207,64 @@
       closeComposer();
     }
 
-    function isCorrectAnswer(value) {
-      var normalized = value.trim().toLowerCase();
-      return correctKeywords.some(function (keyword) {
-        return normalized.includes(keyword);
-      });
-    }
-
     function showToast(message) {
       favoriteToast.textContent = message;
       favoriteToast.classList.add("show");
       window.clearTimeout(toastTimer);
-      toastTimer = window.setTimeout(function () {
-        favoriteToast.classList.remove("show");
-      }, 1800);
+      toastTimer = window.setTimeout(function () { favoriteToast.classList.remove("show"); }, 1800);
     }
 
-    document.getElementById("closeButton").addEventListener("click", function () {
-      showModal(leaveModal);
-    });
+    function setArtifact(artifact) {
+      currentArtifact = artifact;
+      var imageBox = document.getElementById("artifactImage");
+      if (artifact.imageUrl) {
+        imageBox.innerHTML = '<img src="' + artifact.imageUrl + '" alt="' + (artifact.title || "Artifact Image") + '">';
+      } else {
+        imageBox.textContent = artifact.imageLabel || "Artifact Image";
+      }
+      document.getElementById("artifactTitle").textContent = artifact.title || "Artifact Introduction";
+      document.getElementById("artifactDesc").textContent = artifact.description || "";
+      favoriteButton.classList.toggle("active", !!artifact.favorite);
+    }
 
-    document.getElementById("cancelLeaveButton").addEventListener("click", function () {
-      hideModal(leaveModal);
-    });
+    async function requestJson(url, options) {
+      if (url.indexOf("/api/") === 0) {
+        url += (url.indexOf("?") >= 0 ? "&" : "?") + "lang=" + encodeURIComponent(MuseumI18n.getLanguage());
+      }
+      var response = await fetch(url, options);
+      var data = await response.json().catch(function () { return { success: false, message: "Unexpected server response." }; });
+      if (response.status === 401) { window.location.href = "login.html"; throw new Error("Please log in first."); }
+      if (!response.ok) { throw new Error(data.message || "Request failed."); }
+      return data;
+    }
 
-    document.getElementById("confirmLeaveButton").addEventListener("click", function () {
-      window.location.href = "home.html";
-    });
-
-    document.getElementById("viewAnswerButton").addEventListener("click", function () {
-      window.location.href = "turtle-soup-artifact.html";
-    });
-
+    document.getElementById("closeButton").addEventListener("click", function () { showModal(leaveModal); });
+    document.getElementById("cancelLeaveButton").addEventListener("click", function () { hideModal(leaveModal); });
+    document.getElementById("confirmLeaveButton").addEventListener("click", function () { window.location.href = "home.html"; });
+    document.getElementById("viewAnswerButton").addEventListener("click", function () { window.location.href = "turtle-soup-artifact.html"; });
     document.getElementById("submitAnswerButton").addEventListener("click", openComposer);
 
-    document.getElementById("sendButton").addEventListener("click", function () {
+    document.getElementById("sendButton").addEventListener("click", async function () {
       var value = answerInput.value.trim();
-      if (!value) {
-        answerInput.focus();
-        return;
-      }
-
+      if (!value) { answerInput.focus(); return; }
       appendMessage(value, "message-user");
       answerInput.value = "";
       answerInput.style.height = "52px";
       closeComposer();
-
-      if (isCorrectAnswer(value)) {
-        showArtifactMode();
-      } else {
-        appendMessage("Not quite. Try another answer.", "message-system");
+      try {
+        var result = await requestJson("/api/turtle-soup/answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answer: value })
+        });
+        if (result.correct) {
+          setArtifact(result.artifact);
+          showArtifactMode();
+        } else {
+          appendMessage(result.message || "Not quite. Try another answer.", "message-system");
+        }
+      } catch (error) {
+        appendMessage(error.message, "message-system");
       }
     });
 
@@ -593,28 +283,34 @@
     document.addEventListener("click", function (event) {
       var clickedInsideComposer = composer.contains(event.target);
       var clickedSubmitButton = event.target === document.getElementById("submitAnswerButton");
-
-      if (composer.classList.contains("show") && !clickedInsideComposer && !clickedSubmitButton) {
-        closeComposer();
-      }
+      if (composer.classList.contains("show") && !clickedInsideComposer && !clickedSubmitButton) { closeComposer(); }
     });
 
-    document.getElementById("exitButton").addEventListener("click", function () {
-      window.location.href = "home.html";
+    document.getElementById("exitButton").addEventListener("click", function () { window.location.href = "home.html"; });
+    document.getElementById("continueGameButton").addEventListener("click", async function () {
+      await requestJson("/api/turtle-soup/next", { method: "POST" });
+      window.location.href = "turtle-sea.html?round=" + Date.now();
     });
 
-    document.getElementById("continueGameButton").addEventListener("click", function () {
-      window.location.reload();
+    favoriteButton.addEventListener("click", async function () {
+      if (!currentArtifact) return;
+      var result = await requestJson("/api/turtle-soup/favorite/" + encodeURIComponent(currentArtifact.id), { method: "POST" });
+      favoriteButton.classList.toggle("active", !!result.active);
+      showToast(result.active ? "Saved. View it in My Profile - Favorites." : "Removed from favorites.");
     });
 
-    favoriteButton.addEventListener("click", function () {
-      var active = favoriteButton.classList.toggle("active");
-      showToast(active ? "Saved. View it in My Profile - Favorites." : "Removed from favorites.");
-    });
-
-    leaveModal.addEventListener("click", function (event) {
-      if (event.target === leaveModal) {
-        hideModal(leaveModal);
+    leaveModal.addEventListener("click", function (event) { if (event.target === leaveModal) { hideModal(leaveModal); } });
+    window.addEventListener("load", async function () {
+      document.getElementById("viewAnswerButton").textContent = MuseumI18n.getLanguage() === "zh" ? "查看答案" : "View Answer";
+      document.getElementById("submitAnswerButton").textContent = MuseumI18n.getLanguage() === "zh" ? "提交答案" : "Submit My Answer";
+      document.getElementById("exitButton").textContent = MuseumI18n.getLanguage() === "zh" ? "退出" : "Exit";
+      document.getElementById("continueGameButton").textContent = MuseumI18n.getLanguage() === "zh" ? "继续游戏" : "Continue Game";
+      document.getElementById("confirmLeaveButton").textContent = MuseumI18n.getLanguage() === "zh" ? "离开" : "Leave";
+      document.getElementById("cancelLeaveButton").textContent = MuseumI18n.getLanguage() === "zh" ? "取消" : "Cancel";
+      document.getElementById("answerInput").placeholder = MuseumI18n.getLanguage() === "zh" ? "输入你的答案..." : "Type your answer...";
+      var round = await requestJson("/api/turtle-soup/round", { method: "GET" });
+      if (round && round.helperText) {
+        appendMessage(round.helperText, "message-system");
       }
     });
   </script>
