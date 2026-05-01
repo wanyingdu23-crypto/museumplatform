@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Puzzle - My Museum Stories</title>
   <style>
-    :root { --background:#f3f3f1; --surface:rgba(255,255,255,0.78); --surface-solid:#ffffff; --text:#111111; --muted:#7a7a7a; --border:#e7e7e3; --shadow:0 10px 30px rgba(17,17,17,0.05); --card-shadow:0 4px 16px rgba(17,17,17,0.03); --overlay:rgba(17,17,17,0.26); --glow:rgba(255,221,87,0.96); }
+    :root { --background:#efe2c7; --surface:rgba(247,236,212,0.9); --surface-solid:#f6ead2; --text:#2e2217; --muted:#8f7c63; --border:#d1ba91; --shadow:0 12px 32px rgba(84,60,28,0.08); --card-shadow:0 6px 18px rgba(84,60,28,0.05); --overlay:rgba(56,40,18,0.18); --glow:rgba(255,221,87,0.96); }
     *{box-sizing:border-box;margin:0;padding:0} html{-webkit-text-size-adjust:100%}
-    body{min-height:100vh;min-height:100svh;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:linear-gradient(180deg,#f8f8f6 0%,var(--background) 100%);padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+    body{min-height:100vh;min-height:100svh;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:#ffffff;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
     .app-shell{width:100%;max-width:420px;min-height:calc(100svh - 42px);margin:0 auto;padding:20px 16px 24px;background:var(--surface);border:1px solid rgba(255,255,255,0.9);border-radius:28px;box-shadow:var(--shadow);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:14px}
     .topbar{display:flex;justify-content:flex-end}
     .close-btn,.action-btn,.modal-btn,.piece{cursor:pointer;transition:transform 0.18s ease,background-color 0.18s ease,border-color 0.18s ease,box-shadow 0.18s ease;-webkit-tap-highlight-color:transparent}
@@ -18,12 +18,13 @@
     .tray-card{padding:14px 0 12px}
     .tray{display:flex;gap:10px;overflow-x:auto;padding:0 14px 2px;scrollbar-width:none;min-height:92px}
     .tray::-webkit-scrollbar{display:none}
-    .tray-slot{flex:0 0 82px;width:82px;height:82px;border-radius:18px;border:1px dashed #d7d7d2;background:linear-gradient(135deg,#fbfbfa 0%,#f3f3f0 100%);position:relative;overflow:hidden}
+    .tray-slot{flex:0 0 82px;width:82px;height:82px;border-radius:18px;border:1px dashed #d7c5a8;background:linear-gradient(135deg,#fbf4e7 0%,#efe1c8 100%);position:relative;overflow:hidden}
     .piece{width:82px;height:82px;border-radius:18px;border:1px solid var(--border);background-color:#ffffff;box-shadow:var(--card-shadow);user-select:none;touch-action:none;display:block;background-repeat:no-repeat;background-size:300% 300%}
     .piece.dragging{border-color:#111111;opacity:0.96;box-shadow:0 14px 28px rgba(17,17,17,0.16);z-index:60}
     .piece.glow{border-color:#ffd54a;box-shadow:0 0 0 5px rgba(255,221,87,1),0 0 0 16px rgba(255,221,87,0.26),0 0 0 24px rgba(255,221,87,0.14),0 0 34px rgba(255,221,87,0.98),0 0 64px rgba(255,204,51,0.96),0 0 96px rgba(255,221,87,0.84)}
     .cell.glow{box-shadow:inset 0 0 0 5px rgba(255,221,87,0.96),0 0 0 14px rgba(255,221,87,0.2),0 0 26px rgba(255,221,87,0.9),0 0 60px var(--glow)}
-    .board{position:relative;flex:1;min-height:0;padding:18px;background:linear-gradient(135deg,#fbfbfa 0%,#f2f2ef 100%)}
+    .board{position:relative;flex:1;min-height:0;padding:18px;background:#ffffff}
+    .board::before{content:"";position:absolute;inset:22px;background:center / 50% no-repeat url("assets/museum-icon.svg");opacity:0.09;pointer-events:none;z-index:0}
     .grid{position:absolute;inset:18px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:0;border-radius:20px;overflow:hidden}
     .cell{position:relative;border:1px solid rgba(17,17,17,0.04);transition:box-shadow 0.18s ease,background-color 0.18s ease}
     .cell.filled{background:transparent}
@@ -53,7 +54,7 @@
     </div></section>
     <div class="actions"><button class="action-btn" id="hintButton" type="button">View Hint</button><button class="action-btn primary" id="finishButton" type="button">Finish</button></div>
   </main>
-  <div class="overlay" id="leaveModal"><div class="modal"><h3 class="modal-title">Leave This Page?</h3><p class="modal-text">This page has not been saved.</p><div class="modal-actions"><button class="modal-btn" id="confirmLeaveButton" type="button">Leave</button><button class="modal-btn primary" id="cancelLeaveButton" type="button">Cancel</button></div></div></div>
+  <div class="overlay" id="leaveModal"><div class="modal"><h3 class="modal-title" id="leaveModalTitle">Leave This Page?</h3><p class="modal-text" id="leaveModalText">This page has not been saved.</p><div class="modal-actions"><button class="modal-btn" id="confirmLeaveButton" type="button">Leave</button><button class="modal-btn primary" id="cancelLeaveButton" type="button">Cancel</button></div></div></div>
   <div class="overlay" id="incompleteModal"><div class="modal"><h3 class="modal-title">Puzzle Not Finished</h3><p class="modal-text">The puzzle is not complete yet.</p><div class="modal-actions single"><button class="modal-btn primary" id="continuePuzzleButton" type="button">Continue</button></div></div></div>
   <script src="assets/i18n.js"></script>
   <script>
@@ -63,6 +64,7 @@
     }
 
     var leaveModal=document.getElementById("leaveModal"),incompleteModal=document.getElementById("incompleteModal"),tray=document.getElementById("pieceTray"),board=document.getElementById("board"),cells=Array.prototype.slice.call(document.querySelectorAll(".cell")),pieces=[],traySlots=[],dragState=null,hintTimeout=null,currentArtifact=null;
+    function applyTexts(){var isZh=MuseumI18n.getLanguage()==="zh";document.getElementById("hintButton").textContent=isZh?"查看提示":"View Hint";document.getElementById("finishButton").textContent=isZh?"完成":"Finish";document.getElementById("continuePuzzleButton").textContent=isZh?"继续":"Continue";document.getElementById("confirmLeaveButton").textContent=isZh?"离开":"Leave";document.getElementById("cancelLeaveButton").textContent=isZh?"取消":"Cancel";document.getElementById("leaveModalTitle").textContent=isZh?"离开当前页面？":"Leave This Page?";document.getElementById("leaveModalText").textContent=isZh?"此页面内容尚未保存。":"This page has not been saved.";document.title=isZh?"拼图 - 我的博物馆故事":"Puzzle - My Museum Stories";}
     function showModal(modal){modal.classList.add("show")} function hideModal(modal){modal.classList.remove("show")}
     function shuffle(list){var copy=list.slice();for(var i=copy.length-1;i>0;i-=1){var j=Math.floor(Math.random()*(i+1)),temp=copy[i];copy[i]=copy[j];copy[j]=temp;}return copy;}
     function createTraySlots(order){order.forEach(function(pieceId,slotIndex){var slot=document.createElement("div");slot.className="tray-slot";slot.dataset.slotIndex=String(slotIndex);slot.dataset.homePieceId=String(pieceId);tray.appendChild(slot);traySlots.push(slot);});}
@@ -106,7 +108,7 @@
     document.getElementById("finishButton").addEventListener("click",async function(){var result=await requestJson("/api/puzzle/finish",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({placedPieceIds:placedPieceIds()})});if(result.complete){window.location.href="puzzle-artifact.html";}else{showModal(incompleteModal);}});
     document.getElementById("continuePuzzleButton").addEventListener("click",function(){hideModal(incompleteModal);});
     [leaveModal,incompleteModal].forEach(function(modal){modal.addEventListener("click",function(event){if(event.target===modal){hideModal(modal);}});});
-    window.addEventListener("load",async function(){document.getElementById("hintButton").textContent=MuseumI18n.getLanguage()==="zh"?"查看提示":"View Hint";document.getElementById("finishButton").textContent=MuseumI18n.getLanguage()==="zh"?"完成":"Finish";document.getElementById("continuePuzzleButton").textContent=MuseumI18n.getLanguage()==="zh"?"继续":"Continue";var game=await requestJson("/api/puzzle/game",{method:"GET"});currentArtifact=game.artifact||null;createTraySlots(game.pieceOrder||shuffle([0,1,2,3,4,5,6,7,8]));for(var i=0;i<9;i+=1){createPiece(i);}});
+    window.addEventListener("load",async function(){applyTexts();var game=await requestJson("/api/puzzle/game",{method:"GET"});currentArtifact=game.artifact||null;createTraySlots(game.pieceOrder||shuffle([0,1,2,3,4,5,6,7,8]));for(var i=0;i<9;i+=1){createPiece(i);}});
   </script>
 </body>
 </html>

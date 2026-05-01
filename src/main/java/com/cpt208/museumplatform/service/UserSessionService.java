@@ -2,6 +2,7 @@ package com.cpt208.museumplatform.service;
 
 import com.cpt208.museumplatform.dto.LoginRequest;
 import com.cpt208.museumplatform.dto.RegisterRequest;
+import com.cpt208.museumplatform.dto.UpdateProfileRequest;
 import com.cpt208.museumplatform.entity.UserEntity;
 import com.cpt208.museumplatform.model.User;
 import com.cpt208.museumplatform.repository.UserRepository;
@@ -67,6 +68,35 @@ public class UserSessionService {
     @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
+    }
+
+    @Transactional
+    public User updateProfile(Long userId, UpdateProfileRequest request) {
+        UserEntity user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("User not found."));
+
+        String username = normalize(request.username());
+        String password = safeValue(request.password());
+        String confirmPassword = safeValue(request.confirmPassword());
+
+        if (!username.isBlank() && !username.equalsIgnoreCase(user.getUsername())) {
+            if (userRepository.existsByUsernameIgnoreCase(username)) {
+                throw new IllegalArgumentException("This username already exists. Please choose another one.");
+            }
+            user.setUsername(username);
+        }
+
+        if (!password.isBlank() || !confirmPassword.isBlank()) {
+            if (password.isBlank() || confirmPassword.isBlank()) {
+                throw new IllegalArgumentException("Please complete the password fields.");
+            }
+            if (!password.equals(confirmPassword)) {
+                throw new IllegalArgumentException("Passwords do not match.");
+            }
+            user.setPassword(password);
+        }
+
+        return toModel(userRepository.save(user));
     }
 
     private String normalize(String value) {

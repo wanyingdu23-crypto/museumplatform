@@ -6,84 +6,126 @@
   <title>Profile - My Museum Stories</title>
   <style>
     :root {
-      --background: #f3f3f1;
-      --surface: rgba(255, 255, 255, 0.76);
-      --surface-solid: #ffffff;
-      --surface-soft: #f7f7f5;
-      --text: #111111;
-      --muted: #7a7a7a;
-      --border: #e7e7e3;
-      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
+      --surface: #e8d7b1;
+      --surface-solid: #f6ead2;
+      --surface-soft: #ecdbbb;
+      --text: #2e2217;
+      --muted: #8f7c63;
+      --border: #d1ba91;
+      --shadow: 0 12px 32px rgba(84, 60, 28, 0.08);
+      --accent: #222222;
+      --accent-dark: #111111;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      -webkit-text-size-adjust: 100%;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
       min-height: 100vh;
       min-height: 100svh;
       font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
       color: var(--text);
-      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
-      padding:
-        max(18px, env(safe-area-inset-top))
-        max(16px, env(safe-area-inset-right))
-        max(24px, env(safe-area-inset-bottom))
-        max(16px, env(safe-area-inset-left));
+      background: #ffffff;
+      padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     }
 
     .app-shell {
       width: 100%;
       max-width: 420px;
+      height: calc(100svh - 42px);
       min-height: calc(100svh - 42px);
       margin: 0 auto;
-      padding: 20px 16px 24px;
-      background: var(--surface);
-      border: 1px solid rgba(255, 255, 255, 0.88);
+      padding: 18px 16px 18px;
+      background: rgba(255, 250, 240, 0.82);
+      border: 1px solid rgba(255, 248, 234, 0.96);
       border-radius: 28px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(16px);
       display: flex;
       flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      position: relative;
     }
 
-    .topbar {
+    .ornament-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      background-image: url("assets/museum-ornament.svg");
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 112% auto;
+      opacity: 0.54;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(1.08);
+    }
+
+    .app-shell > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .nav-badge {
+      align-self: center;
       display: flex;
       align-items: center;
-      justify-content: flex-start;
-      margin-bottom: 10px;
+      justify-content: center;
+      margin-top: 6px;
     }
 
-    .back-btn {
+    .nav-badge img {
       width: 42px;
       height: 42px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: var(--surface-solid);
-      color: var(--text);
-      font-size: 1.2rem;
+      display: block;
+      opacity: 0.92;
+      filter: sepia(1) saturate(2.8) hue-rotate(350deg) brightness(0.88);
+    }
+
+    .top-nav {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: end;
+      gap: 8px;
+      padding: 0 6px 10px;
+      border-bottom: 3px solid #ddc8a7;
+    }
+
+    .top-tab {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 6px 0 8px;
       cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      position: relative;
     }
 
-    .back-btn:hover {
-      transform: translateY(-1px);
-      background: #fafafa;
+    .top-tab.active { color: var(--text); }
+
+    .top-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: -11px;
+      height: 2.5px;
+      border-radius: 999px;
+      background: #9e6c2b;
     }
 
-    .back-btn:active {
-      transform: translateY(0);
-      background: #f1f1f1;
+    .profile-scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-top: 2px;
+      padding-right: 2px;
+      scrollbar-width: none;
     }
+
+    .profile-scroll::-webkit-scrollbar { display: none; }
 
     .profile-header {
       text-align: center;
@@ -96,80 +138,69 @@
       margin: 0 auto 14px;
       border-radius: 50%;
       border: 1px solid var(--border);
-      background: var(--surface-soft);
+      background: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
       color: var(--text);
       font-size: 1.95rem;
       font-weight: 800;
-      letter-spacing: 0.02em;
     }
 
-    .username {
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .password-note {
+    .header-link {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      color: var(--muted);
-      font-size: 0.84rem;
-      font-weight: 600;
-    }
-
-    .password-value {
-      color: var(--muted);
-    }
-
-    .password-toggle {
-      width: 24px;
-      height: 24px;
-      border: none;
-      background: transparent;
-      color: var(--muted);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: color 0.18s ease, transform 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-
-    .password-toggle:hover {
       color: var(--text);
-      transform: translateY(-1px);
+      text-decoration: none;
+      font-size: 1.24rem;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
-    .password-toggle:active {
-      transform: translateY(0);
-    }
+    .header-link .arrow { font-size: 1rem; color: var(--muted); }
 
-    .password-toggle svg {
-      width: 16px;
-      height: 16px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-    }
+    .section { margin-bottom: 18px; }
 
-    .section {
-      margin-bottom: 18px;
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
     }
 
     .section-title {
-      margin-bottom: 12px;
       color: var(--muted);
       font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+    }
+
+    .feedback-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .feedback-chip svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .grid {
@@ -178,21 +209,19 @@
       gap: 12px;
     }
 
-    .card,
-    .wide-card {
+    .card, .wide-card {
       border: 1px solid var(--border);
       border-radius: 22px;
-      background: var(--surface-solid);
-      box-shadow: 0 4px 16px rgba(17, 17, 17, 0.03);
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.05);
       cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      position: relative;
+      overflow: hidden;
     }
 
     .card {
       min-height: 118px;
-      padding: 16px 14px;
+      padding: 12px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -201,71 +230,116 @@
 
     .wide-card {
       width: 100%;
-      padding: 18px 16px;
+      padding: 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 14px;
     }
 
-    .card:hover,
-    .wide-card:hover {
-      transform: translateY(-1px);
-      background: #fcfcfb;
-      border-color: #d8d8d3;
+    .card-media,
+    .wide-media {
+      position: absolute;
+      inset: 6px;
+      border-radius: 18px;
+      overflow: hidden;
+      pointer-events: none;
     }
 
-    .card:active,
-    .wide-card:active {
-      transform: scale(0.99);
-      background: #f5f5f3;
+    .card-media::before,
+    .wide-media::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .card-media::after,
+    .wide-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(34,24,12,0.22) 100%);
+      z-index: 1;
+    }
+
+    .card.card-turtle .card-media::before {
+      background:
+        radial-gradient(circle at 72% 46%, rgba(242, 217, 178, 0.92), rgba(242, 217, 178, 0) 24%),
+        radial-gradient(circle at 24% 40%, rgba(76, 112, 108, 0.94), rgba(76, 112, 108, 0) 28%),
+        linear-gradient(90deg, rgba(41, 76, 72, 0.86) 0 38%, rgba(255, 251, 241, 0.22) 38% 62%, rgba(208, 180, 142, 0.78) 62% 100%),
+        center / cover no-repeat url("assets/hero/hero-3.jpg");
+      filter: saturate(0.92) contrast(0.96);
+    }
+
+    .card.card-puzzle .card-media::before {
+      background:
+        linear-gradient(90deg, transparent 49.2%, rgba(56, 40, 18, 0.34) 49.2%, rgba(56, 40, 18, 0.34) 50.8%, transparent 50.8%),
+        linear-gradient(0deg, transparent 49.2%, rgba(56, 40, 18, 0.34) 49.2%, rgba(56, 40, 18, 0.34) 50.8%, transparent 50.8%),
+        linear-gradient(90deg, rgba(42, 88, 86, 0.9) 0 50%, rgba(184, 136, 91, 0.78) 50% 100%),
+        center / cover no-repeat url("assets/hero/hero-3.jpg");
+      filter: saturate(0.88) contrast(0.96);
+    }
+
+    .wide-card.card-offline .wide-media::before {
+      background:
+        radial-gradient(circle at 20% 50%, rgba(60, 164, 157, 0.92), rgba(60, 164, 157, 0.72) 26%, rgba(60, 164, 157, 0) 27%),
+        center 50% / 36% auto no-repeat url("assets/museum-icon.svg"),
+        linear-gradient(135deg, rgba(44, 148, 143, 0.82) 0%, rgba(34, 120, 116, 0.9) 100%);
+      filter: sepia(0.06) saturate(1.08);
+    }
+
+    .card-content,
+    .wide-content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      min-height: 94px;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 14px 12px;
+    }
+
+    .wide-content {
+      min-height: 96px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
     }
 
     .icon-badge {
       width: 48px;
       height: 48px;
       border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--surface-soft);
-      color: var(--text);
+      border: 1px solid rgba(255, 240, 214, 0.94);
+      background: rgba(255, 232, 187, 0.82);
+      color: #fffdf8;
+      box-shadow: 0 10px 18px rgba(201, 161, 91, 0.18);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      backdrop-filter: blur(8px);
     }
 
-    .icon {
-      width: 24px;
-      height: 24px;
-    }
-
-    .card-title,
-    .wide-title {
+    .icon { width: 24px; height: 24px; }
+    .card-title, .wide-title {
       font-size: 1rem;
       font-weight: 700;
-      line-height: 1.35;
-      color: var(--text);
+      color: #fffdf8;
+      text-shadow: 0 2px 10px rgba(34, 24, 12, 0.34);
     }
-
-    .wide-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .arrow {
-      color: var(--muted);
-      font-size: 1.1rem;
-      line-height: 1;
-    }
+    .wide-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
 
     .actions {
-      margin-top: auto;
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
-      padding-top: 24px;
+      padding-top: 10px;
     }
 
     .action-btn {
@@ -277,131 +351,370 @@
       font-size: 0.98rem;
       font-weight: 700;
       cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-1px);
-      background: #fafafa;
-      border-color: #d8d8d3;
-    }
-
-    .action-btn:active {
-      transform: translateY(0);
     }
 
     .action-btn.primary {
-      background: var(--text);
+      background: linear-gradient(180deg, #2f2f2f 0%, #111111 100%);
       color: #ffffff;
-      border-color: var(--text);
+      border-color: var(--accent-dark);
     }
 
-    .action-btn.primary:hover {
-      background: #222222;
-      border-color: #222222;
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border-top: 1px solid #e4d4ba;
+      border-radius: 24px;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(84, 60, 28, 0.04);
     }
 
-    @media (max-width: 360px) {
-      .app-shell {
-        border-radius: 24px;
-        padding: 18px 12px 20px;
-      }
-
-      .grid {
-        gap: 10px;
-      }
-
-      .card,
-      .wide-card {
-        border-radius: 18px;
-      }
-
-      .actions {
-        grid-template-columns: 1fr;
-      }
+    .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 6px 6px;
+      border: none;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
     }
+
+    .bottom-item.active {
+      color: var(--text);
+      background: rgba(190, 144, 81, 0.12);
+    }
+
+    .bottom-icon { width: 24px; height: 24px; }
+    .bottom-label { font-size: 0.84rem; font-weight: 700; }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(56, 40, 18, 0.18);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      z-index: 20;
+    }
+
+    .overlay.show { display: flex; }
+
+    .sheet {
+      width: min(360px, 100%);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 24px 50px rgba(17, 17, 17, 0.12);
+      padding: 18px;
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .sheet-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .sheet-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .sheet-text {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .sheet-input {
+      width: 100%;
+      min-height: 116px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: #fbfbfa;
+      color: var(--text);
+      font: inherit;
+      resize: none;
+      outline: none;
+    }
+
+    .sheet-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .sheet-send {
+      min-width: 92px;
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 16px;
+      border: 1px solid var(--accent-dark);
+      background: linear-gradient(180deg, #2f2f2f 0%, #111111 100%);
+      color: #ffffff;
+      font-size: 0.94rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 220px;
+      max-width: 82%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(17, 17, 17, 0.92);
+      color: #ffffff;
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      box-shadow: 0 16px 36px rgba(17, 17, 17, 0.18);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease;
+      z-index: 30;
+      pointer-events: none;
+    }
+
+    .toast.show { opacity: 1; visibility: visible; }
   </style>
 </head>
 <body>
   <main class="app-shell">
-    <div class="topbar">
-      <button class="back-btn" id="backHomeButton" type="button" aria-label="Back to home">&larr;</button>
-    </div>
+    <div class="ornament-layer" aria-hidden="true"></div>
+    <div class="nav-badge" id="navBadge"><img src="assets/museum-icon.svg" alt="Museum"></div>
+    <nav class="top-nav" aria-label="Top navigation">
+      <button class="top-tab" type="button" data-target="home.html" id="topHome">Home</button>
+      <button class="top-tab" type="button" data-target="collection.html" id="topCollection">Collection</button>
+      <button class="top-tab active" type="button" data-target="profile.html" id="topProfile">My</button>
+    </nav>
 
-    <header class="profile-header">
-      <div class="avatar-wrap" id="avatarInitial" aria-hidden="true">M</div>
-      <h1 class="username" id="usernameText">Museum Explorer</h1>
-      <p class="password-note">
-        <span id="passwordLabel">Password:</span>
-        <span class="password-value" id="passwordValue">********</span>
-        <button class="password-toggle" id="passwordToggle" type="button" aria-label="Show password">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M2.5 12C4.7 7.9 8 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C19.3 16.1 16 18.2 12 18.2C8 18.2 4.7 16.1 2.5 12Z"></path>
-            <circle cx="12" cy="12" r="2.8"></circle>
-          </svg>
-        </button>
-      </p>
-    </header>
+    <div class="profile-scroll">
+      <header class="profile-header">
+        <div class="avatar-wrap" id="avatarInitial" aria-hidden="true">M</div>
+        <a class="header-link" id="editInfoLink" href="/edit-info.html">
+          <span id="editInfoText">Edit Info</span>
+          <span class="arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </header>
 
-    <section class="section">
-      <p class="section-title">My Features</p>
-      <div class="grid">
-        <button class="card" type="button" data-target="favorites.html?type=turtle">
-          <div class="icon-badge" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 24 24" fill="none">
-              <path d="M12 7.5C9.8 7.5 8 9.3 8 11.5C8 13.7 9.8 15.5 12 15.5C14.2 15.5 16 13.7 16 11.5C16 9.3 14.2 7.5 12 7.5Z" fill="currentColor"></path>
-              <path d="M7 11.5L4.5 10M7 12.5L4.5 14M17 11.5L19.5 10M17 12.5L19.5 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      <section class="section">
+        <div class="section-head">
+          <p class="section-title" id="sectionTitle">My Features</p>
+          <button class="feedback-chip" id="feedbackButton" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 19L19 12L12 5"></path>
+              <path d="M5 12H18"></path>
             </svg>
-          </div>
-          <span class="card-title">Turtle</span>
-        </button>
-
-        <button class="card" type="button" data-target="favorites.html?type=puzzle">
-          <div class="icon-badge" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 24 24" fill="none">
-              <path d="M8 4H11C11 5.1 11.9 6 13 6C14.1 6 15 5.1 15 4H18C19.1 4 20 4.9 20 6V10C18.9 10 18 10.9 18 12C18 13.1 18.9 14 20 14V18C20 19.1 19.1 20 18 20H14C14 18.9 13.1 18 12 18C10.9 18 10 18.9 10 20H6C4.9 20 4 19.1 4 18V14C5.1 14 6 13.1 6 12C6 10.9 5.1 10 4 10V8C4 5.8 5.8 4 8 4Z" fill="currentColor"></path>
-            </svg>
-          </div>
-          <span class="card-title">Puzzle</span>
-        </button>
-      </div>
-    </section>
-
-    <section class="section">
-      <button class="wide-card" id="favoritesButton" type="button">
-        <div class="wide-left">
-          <div class="icon-badge" aria-hidden="true">
-            <svg class="icon" viewBox="0 0 24 24" fill="none">
-              <path d="M12 3.8L14.5 8.9L20.1 9.7L16 13.7L17 19.3L12 16.7L7 19.3L8 13.7L3.9 9.7L9.5 8.9L12 3.8Z" fill="currentColor"></path>
-            </svg>
-          </div>
-          <span class="wide-title">My Favorites</span>
+            <span id="feedbackText">Feedback</span>
+          </button>
         </div>
-      </button>
-    </section>
+        <div class="grid">
+          <button class="card card-turtle" type="button" data-target="favorites.html?type=turtle">
+            <div class="card-media" aria-hidden="true"></div>
+            <div class="card-content">
+              <div class="icon-badge" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 7.5C9.8 7.5 8 9.3 8 11.5C8 13.7 9.8 15.5 12 15.5C14.2 15.5 16 13.7 16 11.5C16 9.3 14.2 7.5 12 7.5Z" fill="currentColor"></path>
+                  <path d="M7 11.5L4.5 10M7 12.5L4.5 14M17 11.5L19.5 10M17 12.5L19.5 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
+              </div>
+              <span class="card-title" id="cardTurtle">Turtle Soup History</span>
+            </div>
+          </button>
+          <button class="card card-puzzle" type="button" data-target="favorites.html?type=puzzle">
+            <div class="card-media" aria-hidden="true"></div>
+            <div class="card-content">
+              <div class="icon-badge" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M8 4H11C11 5.1 11.9 6 13 6C14.1 6 15 5.1 15 4H18C19.1 4 20 4.9 20 6V10C18.9 10 18 10.9 18 12C18 13.1 18.9 14 20 14V18C20 19.1 19.1 20 18 20H14C14 18.9 13.1 18 12 18C10.9 18 10 18.9 10 20H6C4.9 20 4 19.1 4 18V14C5.1 14 6 13.1 6 12C6 10.9 5.1 10 4 10V8C4 5.8 5.8 4 8 4Z" fill="currentColor"></path>
+                </svg>
+              </div>
+              <span class="card-title" id="cardPuzzle">Puzzle History</span>
+            </div>
+          </button>
+        </div>
+      </section>
 
-    <div class="actions">
-      <button class="action-btn" id="logoutButton" type="button">Sign Out</button>
-      <button class="action-btn primary" id="exitButton" type="button">Delete Account</button>
+      <section class="section">
+        <button class="wide-card card-offline" id="favoritesButton" type="button">
+          <div class="wide-media" aria-hidden="true"></div>
+          <div class="wide-content">
+            <div class="wide-left">
+              <div class="icon-badge" aria-hidden="true">
+                <svg class="icon" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 3.8L14.5 8.9L20.1 9.7L16 13.7L17 19.3L12 16.7L7 19.3L8 13.7L3.9 9.7L9.5 8.9L12 3.8Z" fill="currentColor"></path>
+                </svg>
+              </div>
+              <span class="wide-title" id="wideFavorites">My Favorites</span>
+            </div>
+            <span aria-hidden="true" style="color:#fffdf8;text-shadow:0 2px 10px rgba(34,24,12,0.34);">&rarr;</span>
+          </div>
+        </button>
+      </section>
+
+      <div class="actions">
+        <button class="action-btn" id="logoutButton" type="button">Sign Out</button>
+        <button class="action-btn primary" id="exitButton" type="button">Delete Account</button>
+      </div>
     </div>
+
+    <nav class="bottom-nav" aria-label="Bottom navigation">
+      <button class="bottom-item" type="button" data-target="home.html" id="bottomHome">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 10.5L12 4L20 10.5V19C20 19.6 19.6 20 19 20H15V14.5H9V20H5C4.4 20 4 19.6 4 19V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+        </svg>
+        <span class="bottom-label" id="bottomHomeLabel">Home</span>
+      </button>
+      <button class="bottom-item" type="button" data-target="collection.html" id="bottomCollection">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 4L18.5 7.2V16.8L12 20L5.5 16.8V7.2L12 4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+          <path d="M12 8.2L15.6 10V13.9L12 15.7L8.4 13.9V10L12 8.2Z" fill="currentColor" opacity="0.75"></path>
+        </svg>
+        <span class="bottom-label" id="bottomCollectionLabel">Collection</span>
+      </button>
+      <button class="bottom-item active" type="button" data-target="profile.html" id="bottomProfile">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle>
+          <path d="M4.5 19.5C5.4 16.6 8.1 14.7 12 14.7C15.9 14.7 18.6 16.6 19.5 19.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+        <span class="bottom-label" id="bottomProfileLabel">My</span>
+      </button>
+    </nav>
   </main>
+
+  <div class="overlay" id="feedbackModal">
+    <div class="sheet">
+      <div class="sheet-header">
+        <div class="sheet-title" id="feedbackModalTitle">Feedback</div>
+        <button class="sheet-close" id="feedbackClose" type="button">&times;</button>
+      </div>
+      <p class="sheet-text" id="feedbackIntro">Please enter your suggestion and we will improve it.</p>
+      <textarea class="sheet-input" id="feedbackInput" placeholder="Share your feedback..."></textarea>
+      <div class="sheet-actions">
+        <button class="sheet-send" id="feedbackSend" type="button">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastMessage">Thank you for your suggestion.</div>
 
   <script src="assets/i18n.js"></script>
   <script>
     if (window.location.protocol === "file:") {
-      var profileFileTarget = "http://127.0.0.1:8080/profile.html" + window.location.search + window.location.hash;
-      window.location.replace(profileFileTarget);
+      window.location.replace("http://127.0.0.1:8080/profile.html" + window.location.search + window.location.hash);
     }
 
-    function openEyeIcon() {
-      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12C4.7 7.9 8 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C19.3 16.1 16 18.2 12 18.2C8 18.2 4.7 16.1 2.5 12Z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>';
+    var profileData = null;
+    var toastTimer = null;
+    var feedbackModal = document.getElementById("feedbackModal");
+
+    var texts = {
+      en: {
+        badgeAlt: "Museum",
+        topHome: "Home",
+        topCollection: "Collection",
+        topProfile: "My",
+        bottomHome: "Home",
+        bottomCollection: "Collection",
+        bottomProfile: "My",
+        section: "My Features",
+        turtle: "Turtle Soup History",
+        puzzle: "Puzzle History",
+        favorites: "My Favorites",
+        editInfo: "Edit Info",
+        feedback: "Feedback",
+        feedbackIntro: "Please enter your suggestion and we will improve it.",
+        feedbackPlaceholder: "Share your feedback...",
+        feedbackThanks: "Thank you for your suggestion.",
+        logout: "Sign Out",
+        delete: "Delete Account",
+        title: "Profile - My Museum Stories"
+      },
+      zh: {
+        badgeAlt: "博物馆",
+        topHome: "主页",
+        topCollection: "藏品",
+        topProfile: "我的",
+        bottomHome: "主页",
+        bottomCollection: "藏品",
+        bottomProfile: "我的",
+        section: "我的功能",
+        turtle: "海龟汤记录",
+        puzzle: "拼图记录",
+        favorites: "我的收藏",
+        editInfo: "编辑信息",
+        feedback: "反馈",
+        feedbackIntro: "请输入您的建议，我们会进行改善。",
+        feedbackPlaceholder: "请输入您的建议...",
+        feedbackThanks: "感谢您的建议。",
+        logout: "退出登录",
+        delete: "注销账号",
+        title: "我的 - 我的博物馆故事"
+      }
+    };
+
+    function currentText() {
+      return MuseumI18n.getLanguage() === "zh" ? texts.zh : texts.en;
     }
 
-    function closedEyeIcon() {
-      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4L21 20"></path><path d="M10.6 6.1C11 5.9 11.5 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C20.6 13.6 19.5 14.9 18.2 15.9"></path><path d="M14.8 13.1C14.4 14.2 13.3 15 12 15C10.3 15 9 13.7 9 12C9 10.7 9.8 9.6 10.9 9.2"></path><path d="M7.2 8.1C5.9 9.1 4.8 10.4 3.9 12C6.1 16.1 8.8 18.2 12 18.2C12.8 18.2 13.5 18.1 14.2 17.9"></path></svg>';
+    function applyTexts() {
+      var t = currentText();
+      document.querySelector("#navBadge img").alt = t.badgeAlt;
+      document.getElementById("topHome").textContent = t.topHome;
+      document.getElementById("topCollection").textContent = t.topCollection;
+      document.getElementById("topProfile").textContent = t.topProfile;
+      document.getElementById("bottomHomeLabel").textContent = t.bottomHome;
+      document.getElementById("bottomCollectionLabel").textContent = t.bottomCollection;
+      document.getElementById("bottomProfileLabel").textContent = t.bottomProfile;
+      document.getElementById("sectionTitle").textContent = t.section;
+      document.getElementById("cardTurtle").textContent = t.turtle;
+      document.getElementById("cardPuzzle").textContent = t.puzzle;
+      document.getElementById("wideFavorites").textContent = t.favorites;
+      document.getElementById("editInfoText").textContent = t.editInfo;
+      document.getElementById("feedbackText").textContent = t.feedback;
+      document.getElementById("feedbackModalTitle").textContent = t.feedback;
+      document.getElementById("feedbackIntro").textContent = t.feedbackIntro;
+      document.getElementById("feedbackInput").placeholder = t.feedbackPlaceholder;
+      document.getElementById("feedbackSend").textContent = MuseumI18n.t("common_send");
+      document.getElementById("logoutButton").textContent = t.logout;
+      document.getElementById("exitButton").textContent = t.delete;
+      document.title = t.title;
     }
+
+    function showToast(message) {
+      var toast = document.getElementById("toastMessage");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function () {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    function showModal(modal) { modal.classList.add("show"); }
+    function hideModal(modal) { modal.classList.remove("show"); }
 
     async function requestJson(url, options) {
       var response = await fetch(url, options);
@@ -418,21 +731,51 @@
       return data;
     }
 
-    document.getElementById("backHomeButton").addEventListener("click", function () {
-      window.location.href = "home.html";
+    document.querySelectorAll("[data-target]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var target = button.getAttribute("data-target");
+        if (target) { window.location.href = target; }
+      });
     });
 
-    document.querySelectorAll("[data-target]").forEach(function (item) {
-      item.addEventListener("click", function () {
-        var target = item.getAttribute("data-target");
-        if (target) {
-          window.location.href = target;
-        }
-      });
+    document.getElementById("editInfoLink").addEventListener("click", function (event) {
+      event.preventDefault();
+      window.location.href = "/edit-info.html";
     });
 
     document.getElementById("favoritesButton").addEventListener("click", function () {
       window.location.href = "favorites.html?type=favorites";
+    });
+
+    document.getElementById("feedbackButton").addEventListener("click", function () {
+      showModal(feedbackModal);
+    });
+
+    document.getElementById("feedbackClose").addEventListener("click", function () {
+      hideModal(feedbackModal);
+    });
+
+    feedbackModal.addEventListener("click", function (event) {
+      if (event.target === feedbackModal) {
+        hideModal(feedbackModal);
+      }
+    });
+
+    document.getElementById("feedbackSend").addEventListener("click", async function () {
+      var input = document.getElementById("feedbackInput");
+      var value = input.value.trim();
+      if (!value) {
+        input.focus();
+        return;
+      }
+      await requestJson("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: value })
+      });
+      input.value = "";
+      hideModal(feedbackModal);
+      showToast(currentText().feedbackThanks);
     });
 
     document.getElementById("logoutButton").addEventListener("click", async function () {
@@ -445,31 +788,11 @@
       window.location.href = "welcome.html?skipSplash=1";
     });
 
-    (async function () {
-      var passwordValue = document.getElementById("passwordValue");
-      var passwordToggle = document.getElementById("passwordToggle");
-      var showing = false;
-      var savedPassword = "********";
-
-      function updatePasswordView() {
-        passwordValue.textContent = showing ? savedPassword : "*".repeat(savedPassword.length || 8);
-        passwordToggle.innerHTML = showing ? closedEyeIcon() : openEyeIcon();
-        passwordToggle.setAttribute("aria-label", showing ? MuseumI18n.t("hide_password") : MuseumI18n.t("show_password"));
-      }
-
-      passwordToggle.addEventListener("click", function () {
-        showing = !showing;
-        updatePasswordView();
-      });
-
-      var profile = await requestJson("/api/auth/me", { method: "GET" });
-      savedPassword = profile.password || "********";
-      document.getElementById("usernameText").textContent = profile.username || "Museum Explorer";
-      document.getElementById("avatarInitial").textContent = (profile.username || "U").charAt(0).toUpperCase();
-      updatePasswordView();
-    })();
-
-    MuseumI18n.applyPage("profile");
+    window.addEventListener("load", async function () {
+      applyTexts();
+      profileData = await requestJson("/api/auth/me", { method: "GET" });
+      document.getElementById("avatarInitial").textContent = (profileData.username || "U").charAt(0).toUpperCase();
+    });
   </script>
 </body>
 </html>

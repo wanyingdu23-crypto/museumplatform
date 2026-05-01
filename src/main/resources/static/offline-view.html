@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Offline View - My Museum Stories</title>
   <style>
-    :root { --background:#f3f3f1; --surface:rgba(255,255,255,0.78); --surface-solid:#ffffff; --surface-soft:#f7f7f5; --text:#111111; --muted:#7a7a7a; --border:#e7e7e3; --shadow:0 10px 30px rgba(17,17,17,0.05); --card-shadow:0 4px 16px rgba(17,17,17,0.03); --overlay:rgba(17,17,17,0.22); --warning:#eab308; }
+    :root { --background:#efe2c7; --surface:rgba(247,236,212,0.9); --surface-solid:#f6ead2; --surface-soft:#ecdbbb; --text:#2e2217; --muted:#8f7c63; --border:#d1ba91; --shadow:0 12px 32px rgba(84,60,28,0.08); --card-shadow:0 6px 18px rgba(84,60,28,0.05); --overlay:rgba(56,40,18,0.18); --warning:#eab308; }
     *{box-sizing:border-box;margin:0;padding:0} html{-webkit-text-size-adjust:100%}
-    body{min-height:100vh;min-height:100svh;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:linear-gradient(180deg,#f8f8f6 0%,var(--background) 100%);padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+    body{min-height:100vh;min-height:100svh;font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;color:var(--text);background:#ffffff;padding:max(18px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(24px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
     .app-shell{width:100%;max-width:420px;min-height:calc(100svh - 42px);margin:0 auto;padding:20px 16px 24px;background:var(--surface);border:1px solid rgba(255,255,255,0.9);border-radius:28px;box-shadow:var(--shadow);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
     .topbar{display:flex;justify-content:flex-end}
     .close-btn,.favorite-btn,.scan-trigger,.sheet-send{cursor:pointer;transition:transform 0.18s ease,background-color 0.18s ease,border-color 0.18s ease,box-shadow 0.18s ease;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
@@ -18,7 +18,7 @@
     .scanner-wrap{position:relative}
     .scanner{border:1px solid var(--border);border-radius:28px;background:var(--surface-solid);box-shadow:var(--card-shadow);padding:18px;transition:transform 0.22s ease}
     .scanner.compact{transform:translateY(-8px)}
-    .scan-frame{width:100%;aspect-ratio:1/1.08;border-radius:22px;border:1px solid #d8d8d2;background:linear-gradient(135deg,#f5f5f2 0%,#ecece8 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+    .scan-frame{width:100%;aspect-ratio:1/1.08;border-radius:22px;border:1px solid #d7c5a8;background:linear-gradient(135deg,#fbf4e7 0%,#efe1c8 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
     .scan-view{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;background:#111111}
     .scan-view.show{display:block}
     .scan-corners::before,.scan-corners::after,.scan-corners span::before,.scan-corners span::after{content:"";position:absolute;width:34px;height:34px;border:3px solid rgba(255,255,255,0.92);z-index:2}
@@ -35,7 +35,7 @@
     .artifact-list{display:none;flex-direction:column;gap:12px}
     .artifact-list.show{display:flex}
     .artifact-item{display:grid;grid-template-columns:94px 1fr auto;gap:12px;align-items:start;padding:14px;border:1px solid var(--border);border-radius:24px;background:var(--surface-solid);box-shadow:var(--card-shadow)}
-    .artifact-thumb{width:94px;height:120px;border-radius:18px;border:1px solid #e1e1dc;background:linear-gradient(135deg,#f9f9f7 0%,#efefeb 100%);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.8rem;font-weight:700;text-align:center;padding:10px;overflow:hidden}
+    .artifact-thumb{width:94px;height:120px;border-radius:18px;border:1px solid #e1e1dc;background:#ffffff;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.8rem;font-weight:700;text-align:center;padding:10px;overflow:hidden}
     .artifact-thumb img{width:100%;height:100%;object-fit:cover;display:block}
     .artifact-body{min-width:0;padding-top:4px}
     .artifact-title{font-size:1rem;font-weight:700;margin-bottom:8px}

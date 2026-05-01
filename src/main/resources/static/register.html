@@ -6,12 +6,12 @@
   <title>Register - My Museum Stories</title>
   <style>
     :root {
-      --background: #f3f3f1;
-      --surface: #ffffff;
-      --text: #111111;
-      --muted: #7a7a7a;
-      --border: #e7e7e3;
-      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
+      --background: #efe2c7;
+      --surface: #f6ead2;
+      --text: #2e2217;
+      --muted: #8f7c63;
+      --border: #d1ba91;
+      --shadow: 0 12px 32px rgba(84, 60, 28, 0.08);
     }
 
     * {
@@ -28,7 +28,7 @@
       min-height: 100vh;
       min-height: 100svh;
       font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
+      background: #ffffff;
       color: var(--text);
       display: flex;
       align-items: center;
@@ -41,14 +41,33 @@
     }
 
     .screen {
+      position: relative;
       width: 100%;
       max-width: 420px;
       padding: 28px 18px 24px;
       border-radius: 28px;
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid rgba(255, 255, 255, 0.96);
+      background: rgba(247, 236, 212, 0.94);
+      border: 1px solid rgba(223, 199, 158, 0.98);
       box-shadow: var(--shadow);
       backdrop-filter: blur(16px);
+      overflow: hidden;
+    }
+
+    .screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(247, 236, 212, 0.5), rgba(247, 236, 212, 0.5)),
+        center / cover no-repeat url("assets/hero/auth-museum.jpg");
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen > * {
+      position: relative;
+      z-index: 1;
     }
 
     .title {

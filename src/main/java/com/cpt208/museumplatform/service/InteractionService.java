@@ -18,11 +18,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class InteractionService {
@@ -81,14 +84,13 @@ public class InteractionService {
         }
 
         ArtifactEntity artifact = getOrAssignCurrentTurtleArtifact(userId);
-        boolean correct = normalized.contains(artifact.getTitle().toLowerCase())
-            || (artifact.getTitleZh() != null && normalized.contains(artifact.getTitleZh().toLowerCase()));
+        boolean correct = matchesArtifactNameOrDescription(artifact, normalized, lang);
         if (!correct) {
             return new TurtleAnswerResult(false, "no", null);
         }
 
         saveRecordIfAbsent(userId, artifact.getId(), "turtle");
-        return new TurtleAnswerResult(true, "Correct answer.", toDetail(userId, artifact, lang));
+        return new TurtleAnswerResult(true, "yes", toDetail(userId, artifact, lang));
     }
 
     public ArtifactDetail revealCurrentTurtleArtifact(Long userId, String lang) {
@@ -171,6 +173,29 @@ public class InteractionService {
                 }
             }
         }
+        return results;
+    }
+
+    public List<ArtifactDetail> getCatalogArtifacts(Long userId, String lang, String query) {
+        String normalizedLang = normalizeLang(lang);
+        String keyword = query == null ? "" : query.trim().toLowerCase();
+        List<ArtifactDetail> results = new ArrayList<>();
+
+        for (ArtifactEntity artifact : artifactRepository.findAll()) {
+            ArtifactDetail detail = toDetail(userId, artifact, normalizedLang);
+            if (matchesCatalogQuery(detail, keyword)) {
+                results.add(detail);
+            }
+        }
+
+        for (PuzzleArtifactEntity artifact : puzzleArtifactRepository.findAll()) {
+            ArtifactDetail detail = toDetail(userId, artifact, normalizedLang);
+            if (matchesCatalogQuery(detail, keyword)) {
+                results.add(detail);
+            }
+        }
+
+        results.sort((left, right) -> left.getTitle().compareToIgnoreCase(right.getTitle()));
         return results;
     }
 
@@ -308,6 +333,70 @@ public class InteractionService {
         }
     }
 
+    private boolean matchesArtifactNameOrDescription(ArtifactEntity artifact, String normalizedAnswer, String lang) {
+        if (containsValue(normalizedAnswer, artifact.getTitle())
+            || containsValue(normalizedAnswer, artifact.getTitleZh())
+            || containsValue(normalizedAnswer, artifact.getImageLabel())
+            || containsValue(normalizedAnswer, artifact.getImageLabelZh())) {
+            return true;
+        }
+
+        Set<String> keywords = new LinkedHashSet<>();
+        keywords.addAll(extractKeywords(artifact.getDescriptionByLanguage(normalizeLang(lang))));
+        keywords.addAll(extractKeywords(artifact.getBackgroundStoryByLanguage(normalizeLang(lang))));
+        keywords.addAll(extractKeywords(artifact.getDescription()));
+        keywords.addAll(extractKeywords(artifact.getDescriptionZh()));
+        keywords.addAll(extractKeywords(artifact.getBackgroundStory()));
+        keywords.addAll(extractKeywords(artifact.getBackgroundStoryZh()));
+
+        for (String keyword : keywords) {
+            if (normalizedAnswer.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsValue(String normalizedAnswer, String value) {
+        return value != null && !value.isBlank() && normalizedAnswer.contains(value.trim().toLowerCase());
+    }
+
+    private Set<String> extractKeywords(String source) {
+        Set<String> keywords = new HashSet<>();
+        if (source == null || source.isBlank()) {
+            return keywords;
+        }
+
+        String lowered = source.toLowerCase();
+        Matcher englishMatcher = Pattern.compile("[a-z]{4,}").matcher(lowered);
+        while (englishMatcher.find()) {
+            String word = englishMatcher.group();
+            if (!isCommonEnglishWord(word)) {
+                keywords.add(word);
+            }
+        }
+
+        Matcher chineseMatcher = Pattern.compile("[\\u4e00-\\u9fff]{2,}").matcher(source);
+        while (chineseMatcher.find()) {
+            String segment = chineseMatcher.group().trim().toLowerCase();
+            if (segment.length() >= 2) {
+                keywords.add(segment);
+            }
+        }
+        return keywords;
+    }
+
+    private boolean isCommonEnglishWord(String word) {
+        return Set.of(
+            "this", "that", "with", "from", "were", "been", "have", "has", "into", "their",
+            "there", "which", "while", "where", "about", "after", "before", "would", "could",
+            "should", "these", "those", "than", "then", "they", "them", "used", "made",
+            "make", "using", "also", "very", "more", "most", "such", "only", "some",
+            "many", "much", "each", "other", "another", "through", "during", "because",
+            "being", "inside", "outside", "around", "story", "artifact", "museum"
+        ).contains(word);
+    }
+
     private ArtifactDetail toDetail(Long userId, ArtifactEntity artifact, String lang) {
         return new ArtifactDetail(
             artifact.getId(),
@@ -360,6 +449,14 @@ public class InteractionService {
         return artifactRepository.findById(artifactId)
             .map(artifact -> toPayload(artifact, lang))
             .or(() -> puzzleArtifactRepository.findById(artifactId).map(artifact -> toPayload(artifact, lang)));
+    }
+
+    private boolean matchesCatalogQuery(ArtifactDetail detail, String keyword) {
+        if (keyword.isBlank()) {
+            return true;
+        }
+        return detail.getTitle().toLowerCase().contains(keyword)
+            || detail.getDescription().toLowerCase().contains(keyword);
     }
 
     private String normalizeLang(String lang) {

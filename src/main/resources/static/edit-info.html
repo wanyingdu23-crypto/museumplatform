@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Edit Info - My Museum Stories</title>
+  <style>
+    :root {
+      --surface: rgba(247, 236, 212, 0.95);
+      --surface-solid: #f6ead2;
+      --surface-soft: #ecdbbb;
+      --text: #2e2217;
+      --muted: #8f7c63;
+      --border: #d1ba91;
+      --shadow: 0 12px 32px rgba(84, 60, 28, 0.08);
+      --accent: #222222;
+      --accent-dark: #111111;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: #ffffff;
+      padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+    .app-shell {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+      min-height: calc(100svh - 42px);
+      margin: 0 auto;
+      padding: 18px 16px;
+      background: var(--surface);
+      border: 1px solid rgba(255, 248, 234, 0.96);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow: hidden;
+    }
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(255, 250, 240, 0.38), rgba(255, 250, 240, 0.38)),
+        center / cover no-repeat url("assets/edit-info-bg.jpg");
+      opacity: 0.74;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(0.96) sepia(0.08) brightness(0.99);
+    }
+    .app-shell > * {
+      position: relative;
+      z-index: 1;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .back-btn, .lang-btn, .panel-btn, .sheet-btn, .eye-btn {
+      cursor: pointer;
+    }
+    .back-btn, .lang-btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+    .page-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .scroll {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding-right: 2px;
+      scrollbar-width: none;
+    }
+    .scroll::-webkit-scrollbar { display: none; }
+    .hero-card {
+      padding: 24px 18px 18px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .avatar-wrap {
+      width: 96px;
+      height: 96px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      font-size: 2rem;
+      font-weight: 800;
+    }
+    .username {
+      font-size: 1.28rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .password-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .eye-btn {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .eye-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .panel-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .panel-btn {
+      width: 100%;
+      padding: 18px 16px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      text-align: left;
+      color: var(--text);
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.05);
+    }
+    .panel-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .panel-desc {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    .panel-value {
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(56, 40, 18, 0.18);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 16px;
+      z-index: 20;
+    }
+    .overlay.show { display: flex; }
+    .sheet {
+      width: min(360px, 100%);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 24px 50px rgba(17, 17, 17, 0.12);
+      padding: 18px;
+    }
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .sheet-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .sheet-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    .sheet-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 700;
+      margin: 10px 0 6px;
+    }
+    .sheet-input {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #fbfbfa;
+      color: var(--text);
+      font: inherit;
+      outline: none;
+    }
+    .sheet-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .sheet-btn {
+      min-width: 92px;
+      min-height: 44px;
+      padding: 0 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+    .sheet-btn.primary {
+      border-color: var(--border);
+      background: #ffffff;
+      color: var(--text);
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      min-width: 220px;
+      max-width: 82%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(17, 17, 17, 0.92);
+      color: #ffffff;
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      box-shadow: 0 16px 36px rgba(17, 17, 17, 0.18);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease;
+      z-index: 30;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; visibility: visible; }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="topbar">
+      <button class="back-btn" id="backButton" type="button">Back</button>
+      <div class="page-title" id="pageTitle">Edit Info</div>
+      <button class="lang-btn" id="languageButton" type="button">中文</button>
+    </div>
+
+    <div class="scroll">
+      <section class="hero-card">
+        <div class="avatar-wrap" id="avatarInitial">M</div>
+        <h1 class="username" id="usernameText">Museum Explorer</h1>
+        <div class="password-row">
+          <span id="passwordLabel">Password:</span>
+          <span id="passwordValue">********</span>
+          <button class="eye-btn" id="passwordToggle" type="button" aria-label="Show password"></button>
+        </div>
+      </section>
+
+      <section class="panel-stack">
+        <button class="panel-btn" id="changeNameButton" type="button">
+          <div class="panel-copy">
+            <span class="panel-title" id="changeNameTitle">Change Name</span>
+            <span class="panel-desc" id="changeNameDesc">Update the display name on your account.</span>
+          </div>
+          <span class="panel-value" id="changeNameValue">Current</span>
+        </button>
+
+        <button class="panel-btn" id="changePasswordButton" type="button">
+          <div class="panel-copy">
+            <span class="panel-title" id="changePasswordTitle">Change Password</span>
+            <span class="panel-desc" id="changePasswordDesc">Set a new password for your account.</span>
+          </div>
+          <span class="panel-value" id="changePasswordValue">Edit</span>
+        </button>
+
+        <button class="panel-btn" id="toggleLanguageButton" type="button">
+          <div class="panel-copy">
+            <span class="panel-title" id="languageTitle">Language</span>
+            <span class="panel-desc" id="languageDesc">Switch between Chinese and English.</span>
+          </div>
+          <span class="panel-value" id="languageValue">English</span>
+        </button>
+      </section>
+    </div>
+  </main>
+
+  <div class="overlay" id="nameModal">
+    <div class="sheet">
+      <div class="sheet-header">
+        <div class="sheet-title" id="nameModalTitle">Change Name</div>
+        <button class="sheet-close" data-close="nameModal" type="button">&times;</button>
+      </div>
+      <label class="sheet-label" id="nameInputLabel" for="nameInput">New Name</label>
+      <input class="sheet-input" id="nameInput" type="text" maxlength="50">
+      <div class="sheet-actions">
+        <button class="sheet-btn" data-close="nameModal" type="button" id="nameCancel">Cancel</button>
+        <button class="sheet-btn primary" id="nameSave" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="passwordModal">
+    <div class="sheet">
+      <div class="sheet-header">
+        <div class="sheet-title" id="passwordModalTitle">Change Password</div>
+        <button class="sheet-close" data-close="passwordModal" type="button">&times;</button>
+      </div>
+      <label class="sheet-label" id="passwordInputLabel" for="passwordInput">New Password</label>
+      <input class="sheet-input" id="passwordInput" type="password" maxlength="255">
+      <label class="sheet-label" id="confirmInputLabel" for="confirmInput">Confirm Password</label>
+      <input class="sheet-input" id="confirmInput" type="password" maxlength="255">
+      <div class="sheet-actions">
+        <button class="sheet-btn" data-close="passwordModal" type="button" id="passwordCancel">Cancel</button>
+        <button class="sheet-btn primary" id="passwordSave" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toastMessage">Saved successfully.</div>
+
+  <script src="assets/i18n.js"></script>
+  <script>
+    if (window.location.protocol === "file:") {
+      window.location.replace("http://127.0.0.1:8080/edit-info.html" + window.location.search + window.location.hash);
+    }
+
+    var profileData = null;
+    var showingPassword = false;
+    var toastTimer = null;
+
+    var texts = {
+      en: {
+        pageTitle: "Edit Info",
+        back: "Back",
+        passwordLabel: "Password:",
+        changeName: "Change Name",
+        changeNameDesc: "Update the display name on your account.",
+        changePassword: "Change Password",
+        changePasswordDesc: "Set a new password for your account.",
+        language: "Language",
+        languageDesc: "Switch between Chinese and English.",
+        edit: "Edit",
+        current: "Current",
+        english: "English",
+        chinese: "Chinese",
+        newName: "New Name",
+        newPassword: "New Password",
+        confirmPassword: "Confirm Password",
+        cancel: "Cancel",
+        save: "Save",
+        success: "Saved successfully.",
+        title: "Edit Info - My Museum Stories"
+      },
+      zh: {
+        pageTitle: "编辑信息",
+        back: "返回",
+        passwordLabel: "密码：",
+        changeName: "修改名字",
+        changeNameDesc: "修改当前账号显示的名字。",
+        changePassword: "修改密码",
+        changePasswordDesc: "为当前账号设置新的密码。",
+        language: "语言",
+        languageDesc: "在中文和英语之间切换。",
+        edit: "修改",
+        current: "当前",
+        english: "英语",
+        chinese: "中文",
+        newName: "新的名字",
+        newPassword: "新密码",
+        confirmPassword: "确认密码",
+        cancel: "取消",
+        save: "保存",
+        success: "保存成功。",
+        title: "编辑信息 - 我的博物馆故事"
+      }
+    };
+
+    function currentText() {
+      return MuseumI18n.getLanguage() === "zh" ? texts.zh : texts.en;
+    }
+
+    function openEyeIcon() {
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12C4.7 7.9 8 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C19.3 16.1 16 18.2 12 18.2C8 18.2 4.7 16.1 2.5 12Z"></path><circle cx="12" cy="12" r="2.8"></circle></svg>';
+    }
+
+    function closedEyeIcon() {
+      return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4L21 20"></path><path d="M10.6 6.1C11 5.9 11.5 5.8 12 5.8C16 5.8 19.3 7.9 21.5 12C20.6 13.6 19.5 14.9 18.2 15.9"></path><path d="M14.8 13.1C14.4 14.2 13.3 15 12 15C10.3 15 9 13.7 9 12C9 10.7 9.8 9.6 10.9 9.2"></path><path d="M7.2 8.1C5.9 9.1 4.8 10.4 3.9 12C6.1 16.1 8.8 18.2 12 18.2C12.8 18.2 13.5 18.1 14.2 17.9"></path></svg>';
+    }
+
+    function updatePasswordView() {
+      var password = (profileData && profileData.password) || "********";
+      document.getElementById("passwordValue").textContent = showingPassword ? password : "*".repeat(password.length || 8);
+      document.getElementById("passwordToggle").innerHTML = showingPassword ? closedEyeIcon() : openEyeIcon();
+    }
+
+    function applyTexts() {
+      var t = currentText();
+      document.getElementById("pageTitle").textContent = t.pageTitle;
+      document.getElementById("backButton").textContent = t.back;
+      document.getElementById("passwordLabel").textContent = t.passwordLabel;
+      document.getElementById("changeNameTitle").textContent = t.changeName;
+      document.getElementById("changeNameDesc").textContent = t.changeNameDesc;
+      document.getElementById("changePasswordTitle").textContent = t.changePassword;
+      document.getElementById("changePasswordDesc").textContent = t.changePasswordDesc;
+      document.getElementById("languageTitle").textContent = t.language;
+      document.getElementById("languageDesc").textContent = t.languageDesc;
+      document.getElementById("changeNameValue").textContent = t.current;
+      document.getElementById("changePasswordValue").textContent = t.edit;
+      document.getElementById("languageValue").textContent = MuseumI18n.getLanguage() === "zh" ? t.chinese : t.english;
+      document.getElementById("nameModalTitle").textContent = t.changeName;
+      document.getElementById("nameInputLabel").textContent = t.newName;
+      document.getElementById("passwordModalTitle").textContent = t.changePassword;
+      document.getElementById("passwordInputLabel").textContent = t.newPassword;
+      document.getElementById("confirmInputLabel").textContent = t.confirmPassword;
+      document.getElementById("nameCancel").textContent = t.cancel;
+      document.getElementById("passwordCancel").textContent = t.cancel;
+      document.getElementById("nameSave").textContent = t.save;
+      document.getElementById("passwordSave").textContent = t.save;
+      document.getElementById("languageButton").textContent = MuseumI18n.getLanguage() === "zh" ? "ENG" : "中文";
+      document.title = t.title;
+    }
+
+    function showToast(message) {
+      var toast = document.getElementById("toastMessage");
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(function () {
+        toast.classList.remove("show");
+      }, 1800);
+    }
+
+    function showModal(id) {
+      document.getElementById(id).classList.add("show");
+    }
+
+    function hideModal(id) {
+      document.getElementById(id).classList.remove("show");
+    }
+
+    async function requestJson(url, options) {
+      var response = await fetch(url, options);
+      var data = await response.json().catch(function () {
+        return { success: false, message: "Unexpected server response." };
+      });
+      if (response.status === 401) {
+        window.location.href = "login.html";
+        throw new Error("Please log in first.");
+      }
+      if (!response.ok) {
+        throw new Error(data.message || "Request failed.");
+      }
+      return data;
+    }
+
+    function syncProfile() {
+      if (!profileData) { return; }
+      document.getElementById("avatarInitial").textContent = (profileData.username || "U").charAt(0).toUpperCase();
+      document.getElementById("usernameText").textContent = profileData.username || "Museum Explorer";
+      updatePasswordView();
+    }
+
+    document.getElementById("backButton").addEventListener("click", function () {
+      window.location.href = "profile.html";
+    });
+
+    document.getElementById("languageButton").addEventListener("click", function () {
+      MuseumI18n.toggleLanguage();
+      applyTexts();
+    });
+
+    document.getElementById("toggleLanguageButton").addEventListener("click", function () {
+      MuseumI18n.toggleLanguage();
+      applyTexts();
+    });
+
+    document.getElementById("passwordToggle").addEventListener("click", function () {
+      showingPassword = !showingPassword;
+      updatePasswordView();
+    });
+
+    document.getElementById("changeNameButton").addEventListener("click", function () {
+      document.getElementById("nameInput").value = (profileData && profileData.username) || "";
+      showModal("nameModal");
+    });
+
+    document.getElementById("changePasswordButton").addEventListener("click", function () {
+      document.getElementById("passwordInput").value = "";
+      document.getElementById("confirmInput").value = "";
+      showModal("passwordModal");
+    });
+
+    document.querySelectorAll("[data-close]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        hideModal(button.getAttribute("data-close"));
+      });
+    });
+
+    document.querySelectorAll(".overlay").forEach(function (overlay) {
+      overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+          overlay.classList.remove("show");
+        }
+      });
+    });
+
+    document.getElementById("nameSave").addEventListener("click", async function () {
+      var username = document.getElementById("nameInput").value.trim();
+      if (!username) {
+        document.getElementById("nameInput").focus();
+        return;
+      }
+      profileData = await requestJson("/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username, password: "", confirmPassword: "" })
+      });
+      syncProfile();
+      hideModal("nameModal");
+      showToast(currentText().success);
+    });
+
+    document.getElementById("passwordSave").addEventListener("click", async function () {
+      var password = document.getElementById("passwordInput").value.trim();
+      var confirmPassword = document.getElementById("confirmInput").value.trim();
+      if (!password || !confirmPassword) {
+        return;
+      }
+      profileData = await requestJson("/api/auth/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: "", password: password, confirmPassword: confirmPassword })
+      });
+      syncProfile();
+      hideModal("passwordModal");
+      showToast(currentText().success);
+    });
+
+    window.addEventListener("load", async function () {
+      applyTexts();
+      profileData = await requestJson("/api/auth/me", { method: "GET" });
+      syncProfile();
+    });
+  </script>
+</body>
+</html>

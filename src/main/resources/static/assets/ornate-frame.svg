@@ -1,0 +1,16 @@
+<svg width="720" height="440" viewBox="0 0 720 440" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="meanderH" width="40" height="18" patternUnits="userSpaceOnUse">
+      <path d="M1 1H39V17H1V1ZM8 5H20V13H8V5ZM20 5H32V13H20" stroke="#C8A15B" stroke-width="2"/>
+    </pattern>
+    <pattern id="meanderV" width="18" height="40" patternUnits="userSpaceOnUse">
+      <path d="M1 1H17V39H1V1ZM5 8H13V20H5V8ZM5 20H13V32H5" stroke="#C8A15B" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect x="4" y="4" width="712" height="432" rx="10" stroke="#C8A15B" stroke-width="4"/>
+  <rect x="16" y="16" width="688" height="408" rx="8" stroke="#D4B175" stroke-width="2.5"/>
+  <rect x="28" y="28" width="664" height="18" fill="url(#meanderH)"/>
+  <rect x="28" y="394" width="664" height="18" fill="url(#meanderH)"/>
+  <rect x="28" y="46" width="18" height="348" fill="url(#meanderV)"/>
+  <rect x="674" y="46" width="18" height="348" fill="url(#meanderV)"/>
+</svg>

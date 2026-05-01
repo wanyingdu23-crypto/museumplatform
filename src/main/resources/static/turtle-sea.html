@@ -6,16 +6,16 @@
   <title>Turtle Soup - My Museum Stories</title>
   <style>
     :root {
-      --background: #f3f3f1;
-      --surface: rgba(255, 255, 255, 0.78);
-      --surface-solid: #ffffff;
-      --surface-soft: #f7f7f5;
-      --text: #111111;
-      --muted: #7a7a7a;
-      --border: #e7e7e3;
-      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
-      --card-shadow: 0 4px 16px rgba(17, 17, 17, 0.03);
-      --overlay: rgba(17, 17, 17, 0.26);
+      --background: #efe2c7;
+      --surface: rgba(247, 236, 212, 0.9);
+      --surface-solid: #f6ead2;
+      --surface-soft: #ecdbbb;
+      --text: #2e2217;
+      --muted: #8f7c63;
+      --border: #d1ba91;
+      --shadow: 0 12px 32px rgba(84, 60, 28, 0.08);
+      --card-shadow: 0 6px 18px rgba(84, 60, 28, 0.05);
+      --overlay: rgba(56, 40, 18, 0.18);
       --warning: #eab308;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -23,7 +23,7 @@
     body {
       font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
       color: var(--text);
-      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
+      background: #ffffff;
       padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
     }
     .app-shell {
@@ -56,10 +56,21 @@
     .close-btn:hover, .secondary-btn:hover, .primary-btn:hover, .modal-btn:hover, .send-btn:hover, .favorite-btn:hover { transform: translateY(-1px); }
     .close-btn:active, .secondary-btn:active, .primary-btn:active, .modal-btn:active, .send-btn:active, .favorite-btn:active { transform: translateY(0); }
     .chat-panel, .artifact-panel {
-      flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 24px; background: var(--surface-solid); box-shadow: var(--card-shadow); overflow: hidden;
+      flex: 1; min-height: 0; border: 1px solid var(--border); border-radius: 24px; background: #ffffff; box-shadow: var(--card-shadow); overflow: hidden;
     }
-    .chat-panel { display: flex; flex-direction: column; }
+    .chat-panel { display: flex; flex-direction: column; position: relative; }
+    .chat-panel::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      background: center / 50% no-repeat url("assets/museum-icon.svg");
+      opacity: 0.09;
+      pointer-events: none;
+      z-index: 0;
+    }
     .chat-scroll {
+      position: relative;
+      z-index: 1;
       flex: 1; min-height: 0; padding: 18px 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; overscroll-behavior: contain;
     }
     .chat-empty { flex: 1; }
@@ -69,7 +80,7 @@
     .artifact-panel { display: none; padding: 18px 16px; overflow-y: auto; }
     .artifact-panel.show { display: block; }
     .artifact-image {
-      width: 100%; aspect-ratio: 4 / 3; border-radius: 20px; border: 1px solid #e1e1dc; background: linear-gradient(135deg, #f9f9f7 0%, #efefeb 100%); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; overflow:hidden;
+      width: 100%; aspect-ratio: 4 / 3; border-radius: 20px; border: 1px solid #dcc9aa; background: #ffffff; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.95rem; font-weight: 600; margin-bottom: 16px; overflow:hidden;
     }
     .artifact-image img { width:100%; height:100%; object-fit:contain; display:block; padding:10px; }
     .artifact-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
@@ -155,8 +166,8 @@
   </div>
   <div class="overlay" id="leaveModal">
     <div class="modal">
-      <h3 class="modal-title">Leave This Page?</h3>
-      <p class="modal-text">This page has not been saved.</p>
+      <h3 class="modal-title" id="leaveModalTitle">Leave This Page?</h3>
+      <p class="modal-text" id="leaveModalText">This page has not been saved.</p>
       <div class="modal-actions">
         <button class="modal-btn" id="confirmLeaveButton" type="button">Leave</button>
         <button class="modal-btn primary" id="cancelLeaveButton" type="button">Cancel</button>
@@ -183,6 +194,20 @@
     var favoriteToast = document.getElementById("favoriteToast");
     var toastTimer = null;
     var currentArtifact = null;
+
+    function applyTexts() {
+      var isZh = MuseumI18n.getLanguage() === "zh";
+      document.getElementById("viewAnswerButton").textContent = isZh ? "查看答案" : "View Answer";
+      document.getElementById("submitAnswerButton").textContent = isZh ? "提交答案" : "Submit My Answer";
+      document.getElementById("exitButton").textContent = isZh ? "退出" : "Exit";
+      document.getElementById("continueGameButton").textContent = isZh ? "继续游戏" : "Continue Game";
+      document.getElementById("confirmLeaveButton").textContent = isZh ? "离开" : "Leave";
+      document.getElementById("cancelLeaveButton").textContent = isZh ? "取消" : "Cancel";
+      document.getElementById("leaveModalTitle").textContent = isZh ? "离开当前页面？" : "Leave This Page?";
+      document.getElementById("leaveModalText").textContent = isZh ? "此页面内容尚未保存。" : "This page has not been saved.";
+      document.getElementById("answerInput").placeholder = isZh ? "输入你的答案..." : "Type your answer...";
+      document.title = isZh ? "海龟汤 - 我的博物馆故事" : "Turtle Soup - My Museum Stories";
+    }
 
     function showModal(modal) { modal.classList.add("show"); }
     function hideModal(modal) { modal.classList.remove("show"); }
@@ -308,13 +333,7 @@
 
     leaveModal.addEventListener("click", function (event) { if (event.target === leaveModal) { hideModal(leaveModal); } });
     window.addEventListener("load", async function () {
-      document.getElementById("viewAnswerButton").textContent = MuseumI18n.getLanguage() === "zh" ? "查看答案" : "View Answer";
-      document.getElementById("submitAnswerButton").textContent = MuseumI18n.getLanguage() === "zh" ? "提交答案" : "Submit My Answer";
-      document.getElementById("exitButton").textContent = MuseumI18n.getLanguage() === "zh" ? "退出" : "Exit";
-      document.getElementById("continueGameButton").textContent = MuseumI18n.getLanguage() === "zh" ? "继续游戏" : "Continue Game";
-      document.getElementById("confirmLeaveButton").textContent = MuseumI18n.getLanguage() === "zh" ? "离开" : "Leave";
-      document.getElementById("cancelLeaveButton").textContent = MuseumI18n.getLanguage() === "zh" ? "取消" : "Cancel";
-      document.getElementById("answerInput").placeholder = MuseumI18n.getLanguage() === "zh" ? "输入你的答案..." : "Type your answer...";
+      applyTexts();
       var round = await requestJson("/api/turtle-soup/round", { method: "GET" });
       if (round && round.helperText) {
         appendMessage(round.helperText, "message-system");

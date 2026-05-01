@@ -6,14 +6,14 @@
   <title>Home - My Museum Stories</title>
   <style>
     :root {
-      --background: #f3f3f1;
-      --surface: #ffffff;
-      --surface-soft: #f7f7f5;
-      --text: #111111;
-      --muted: #7a7a7a;
-      --border: #e7e7e3;
-      --shadow: 0 10px 30px rgba(17, 17, 17, 0.05);
-      --overlay: rgba(17, 17, 17, 0.18);
+      --background: #efe2c7;
+      --surface: rgba(255, 250, 240, 0.82);
+      --surface-solid: #fffaf0;
+      --surface-soft: #f6ecd9;
+      --text: #2e2217;
+      --muted: #8f7c63;
+      --border: #dfcfb3;
+      --shadow: 0 12px 32px rgba(84, 60, 28, 0.08);
     }
 
     * {
@@ -31,7 +31,7 @@
       min-height: 100svh;
       font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
       color: var(--text);
-      background: linear-gradient(180deg, #f8f8f6 0%, var(--background) 100%);
+      background: #ffffff;
       padding:
         max(18px, env(safe-area-inset-top))
         max(16px, env(safe-area-inset-right))
@@ -42,155 +42,132 @@
     .app-shell {
       width: 100%;
       max-width: 420px;
+      height: calc(100svh - 42px);
       min-height: calc(100svh - 42px);
       margin: 0 auto;
-      padding: 22px 16px 24px;
-      background: rgba(255, 255, 255, 0.72);
-      border: 1px solid rgba(255, 255, 255, 0.9);
+      padding: 18px 16px 18px;
+      background: var(--surface);
+      border: 1px solid rgba(255, 248, 234, 0.96);
       border-radius: 28px;
       box-shadow: var(--shadow);
       backdrop-filter: blur(16px);
       display: flex;
       flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
       position: relative;
     }
 
-    .topbar {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: start;
-      margin-bottom: 34px;
+    .ornament-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      background-image: url("assets/museum-ornament.svg");
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 112% auto;
+      opacity: 0.54;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(1.08);
     }
 
-    .brand {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-top: 44px;
-    }
-
-    .topbar-actions {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 10px;
-    }
-
-    .page-title {
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      text-transform: uppercase;
-    }
-
-    .feedback-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      width: fit-content;
-      padding: 8px 11px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--muted);
-      font-size: 0.76rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-
-    .feedback-btn:hover,
-    .avatar-btn:hover,
-    .feature-card:hover,
-    .modal-close:hover,
-    .feedback-send:hover {
-      transform: translateY(-1px);
-    }
-
-    .feedback-btn:active,
-    .avatar-btn:active,
-    .feature-card:active,
-    .modal-close:active,
-    .feedback-send:active {
-      transform: translateY(0);
-    }
-
-    .feedback-btn:hover {
-      background: #fafafa;
-      color: var(--text);
-    }
-
-    .feedback-icon {
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
-    }
-
-    .avatar-btn {
-      width: 50px;
-      height: 50px;
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      background: var(--surface);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-
-    .avatar-btn:hover {
-      background: #fafafa;
+    .app-shell > * {
+      position: relative;
+      z-index: 1;
     }
 
     .lang-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 62px;
-      padding: 8px 12px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--muted);
-      font-size: 0.76rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      display: none;
     }
 
-    .lang-btn:hover {
-      transform: translateY(-1px);
-      background: #fafafa;
+    .top-nav {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: end;
+      gap: 8px;
+      padding: 0 6px 10px;
+      border-bottom: 3px solid #ddc8a7;
+    }
+
+    .nav-badge {
+      align-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 6px;
+    }
+
+    .nav-badge img {
+      width: 42px;
+      height: 42px;
+      display: block;
+      opacity: 0.92;
+      filter: sepia(1) saturate(2.8) hue-rotate(350deg) brightness(0.88);
+    }
+
+    .top-tab {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 6px 0 8px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .top-tab.active {
       color: var(--text);
     }
 
-    .avatar-icon {
-      width: 22px;
-      height: 22px;
+    .top-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: -11px;
+      height: 2.5px;
+      border-radius: 999px;
+      background: #9e6c2b;
+    }
+
+    .hero-shell {
+      position: relative;
+      padding: 0;
+      border-radius: 24px;
+      background: transparent;
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.04);
+      overflow: hidden;
+      width: 100%;
+      margin: 2px 0 0;
+      aspect-ratio: 720 / 440;
+    }
+
+    .hero-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: center / 100% 100% no-repeat url("assets/ornate-frame.svg");
+      opacity: 1;
+      pointer-events: none;
+      z-index: 3;
     }
 
     .hero-strip {
-      position: relative;
-      margin-bottom: 0;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      background: var(--surface);
-      box-shadow: 0 4px 16px rgba(17, 17, 17, 0.03);
+      position: absolute;
+      inset: 4.2%;
+      border-radius: 20px;
+      background: rgba(255, 250, 240, 0.76);
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.05);
       overflow: hidden;
-      min-height: 164px;
+      z-index: 1;
     }
 
     .hero-track {
       display: flex;
+      height: 100%;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scroll-behavior: smooth;
@@ -203,16 +180,12 @@
 
     .hero-card {
       flex: 0 0 100%;
-      height: 164px;
+      height: 100%;
       scroll-snap-align: start;
-      position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      background-color: #efefeb;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
+      position: relative;
     }
 
     .hero-card::after {
@@ -220,10 +193,6 @@
       position: absolute;
       inset: 0;
       background: linear-gradient(180deg, rgba(0, 0, 0, 0.04) 0%, rgba(0, 0, 0, 0.18) 100%);
-    }
-
-    .hero-label {
-      display: none;
     }
 
     .hero-dots {
@@ -241,7 +210,6 @@
       height: 7px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.38);
-      transition: background-color 0.18s ease, transform 0.18s ease;
     }
 
     .hero-dot.active {
@@ -253,34 +221,81 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      margin-top: auto;
-      padding-top: 26px;
+      margin-top: 30px;
+    }
+
+    .feature-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
 
     .feature-card {
       width: 100%;
-      padding: 15px 14px;
       border: 1px solid var(--border);
       border-radius: 22px;
-      background: var(--surface);
-      box-shadow: 0 4px 16px rgba(17, 17, 17, 0.03);
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.05);
       display: flex;
-      align-items: center;
-      gap: 14px;
+      align-items: stretch;
+      gap: 0;
       cursor: pointer;
       transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feature-card.compact {
+      min-height: 110px;
     }
 
     .feature-card:hover {
-      border-color: #d8d8d3;
-      background: #fcfcfb;
+      transform: translateY(-1px);
+      background: #fffcf6;
     }
 
-    .feature-card:active {
-      transform: scale(0.99);
-      background: #f5f5f3;
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 18px;
+      z-index: 0;
+    }
+
+    .feature-card::after {
+      content: "";
+      position: absolute;
+      inset: 8px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(34,24,12,0.22) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .feature-card.compact.card-turtle::before {
+      background:
+        radial-gradient(circle at 72% 46%, rgba(242, 217, 178, 0.92), rgba(242, 217, 178, 0) 24%),
+        radial-gradient(circle at 24% 40%, rgba(76, 112, 108, 0.94), rgba(76, 112, 108, 0) 28%),
+        linear-gradient(90deg, rgba(41, 76, 72, 0.86) 0 38%, rgba(255, 251, 241, 0.22) 38% 62%, rgba(208, 180, 142, 0.78) 62% 100%),
+        center / cover no-repeat url("assets/hero/hero-3.jpg");
+      filter: saturate(0.92) contrast(0.96);
+    }
+
+    .feature-card.compact.card-puzzle::before {
+      background:
+        linear-gradient(90deg, transparent 49.2%, rgba(56, 40, 18, 0.34) 49.2%, rgba(56, 40, 18, 0.34) 50.8%, transparent 50.8%),
+        linear-gradient(0deg, transparent 49.2%, rgba(56, 40, 18, 0.34) 49.2%, rgba(56, 40, 18, 0.34) 50.8%, transparent 50.8%),
+        linear-gradient(90deg, rgba(42, 88, 86, 0.9) 0 50%, rgba(184, 136, 91, 0.78) 50% 100%),
+        center / cover no-repeat url("assets/hero/hero-3.jpg");
+      filter: saturate(0.88) contrast(0.96);
+    }
+
+    .feature-card.card-offline::before {
+      background:
+        radial-gradient(circle at 20% 50%, rgba(60, 164, 157, 0.92), rgba(60, 164, 157, 0.72) 26%, rgba(60, 164, 157, 0) 27%),
+        center 50% / 36% auto no-repeat url("assets/museum-icon.svg"),
+        linear-gradient(135deg, rgba(44, 148, 143, 0.82) 0%, rgba(34, 120, 116, 0.9) 100%);
+      filter: sepia(0.06) saturate(1.08);
     }
 
     .feature-icon-wrap {
@@ -289,11 +304,15 @@
       flex-shrink: 0;
       border-radius: 50%;
       border: 1px solid var(--border);
-      background: var(--surface-soft);
+      background: rgba(255, 232, 187, 0.82);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text);
+      color: #fffdf8;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 10px 18px rgba(201, 161, 91, 0.18);
+      backdrop-filter: blur(8px);
     }
 
     .feature-icon {
@@ -303,260 +322,264 @@
 
     .feature-body {
       flex: 1;
-      min-width: 0;
       text-align: left;
+      position: relative;
+      z-index: 2;
     }
 
     .feature-title {
       font-size: 1rem;
       font-weight: 700;
-      line-height: 1.35;
+      color: #fffdf8;
+      text-shadow: 0 2px 10px rgba(34, 24, 12, 0.3);
     }
 
     .arrow {
-      color: var(--muted);
+      color: rgba(255, 248, 235, 0.9);
       font-size: 1.1rem;
-      line-height: 1;
+      position: relative;
+      z-index: 2;
     }
 
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--overlay);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px 16px;
-      z-index: 20;
-    }
-
-    .overlay.show {
-      display: flex;
-    }
-
-    .feedback-modal {
+    .feature-card.compact .feature-content {
       width: 100%;
-      max-width: 360px;
-      padding: 18px;
-      border-radius: 24px;
-      background: rgba(255, 255, 255, 0.98);
-      border: 1px solid rgba(255, 255, 255, 0.94);
-      box-shadow: 0 24px 50px rgba(17, 17, 17, 0.12);
-    }
-
-    .modal-topbar {
+      min-height: 110px;
+      padding: 12px 12px 10px;
       display: flex;
-      justify-content: flex-end;
-      margin-bottom: 8px;
-    }
-
-    .modal-close {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 1.35rem;
-      line-height: 1;
-      cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease;
-    }
-
-    .feedback-area {
-      min-height: 96px;
-      padding: 14px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      background: var(--surface-soft);
-      color: var(--muted);
-      font-size: 0.92rem;
-      line-height: 1.65;
-      margin-bottom: 12px;
-      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       align-items: flex-start;
+      position: relative;
+      z-index: 2;
     }
 
-    .feedback-input-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
+    .feature-card.compact .arrow {
+      align-self: flex-end;
+    }
+
+    .feature-card.card-offline .feature-content {
+      width: 100%;
+      min-height: 110px;
+      padding: 14px 14px;
+      display: flex;
       align-items: center;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
     }
 
-    .feedback-input {
-      min-height: 48px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
+    .feature-card.card-offline .feature-body {
+      flex: 1;
+    }
+
+    .feature-card.card-offline .arrow {
+      align-self: center;
+    }
+
+    .bottom-nav {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border-top: 1px solid #e4d4ba;
+      border-radius: 24px;
       background: #ffffff;
-      color: var(--text);
-      font: inherit;
-      outline: none;
+      box-shadow: 0 8px 18px rgba(84, 60, 28, 0.04);
     }
 
-    .feedback-send {
-      min-width: 84px;
-      min-height: 48px;
-      padding: 0 14px;
-      border-radius: 16px;
-      border: 1px solid #111111;
-      background: #111111;
-      color: #ffffff;
-      font-size: 0.94rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.18s ease, background-color 0.18s ease;
-    }
-
-    .toast {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      min-width: 210px;
-      max-width: 82%;
-      padding: 14px 16px;
+    .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 6px 6px;
+      border: none;
       border-radius: 18px;
-      background: rgba(17, 17, 17, 0.92);
-      color: #ffffff;
-      text-align: center;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      box-shadow: 0 16px 36px rgba(17, 17, 17, 0.18);
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s ease;
-      z-index: 25;
-      pointer-events: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
     }
 
-    .toast.show {
-      opacity: 1;
-      visibility: visible;
+    .bottom-item.active {
+      color: var(--text);
+      background: rgba(190, 144, 81, 0.12);
+    }
+
+    .bottom-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .bottom-label {
+      font-size: 0.84rem;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
   <main class="app-shell">
-    <header class="topbar">
-      <div class="brand">
-        <h1 class="page-title">Museum Stories</h1>
-      </div>
+    <div class="ornament-layer" aria-hidden="true"></div>
+    <button class="lang-btn" id="languageToggle" type="button">中/ENG</button>
 
-      <div class="topbar-actions">
-        <button class="lang-btn" id="languageToggle" type="button">中/ENG</button>
-        <button class="feedback-btn" id="feedbackButton" type="button" aria-label="Open feedback">
-          <svg class="feedback-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 4.5H15.5V19.5H5V4.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-            <path d="M8 8.2H12.5M8 11.5H12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-            <path d="M15.3 8.3L18.8 11.8L12.8 17.8L9.8 18.3L10.3 15.3L16.3 9.3C16.58 9.02 17.02 9.02 17.3 9.3Z" fill="currentColor"></path>
-          </svg>
-          <span>Feedback</span>
-        </button>
-        <button class="avatar-btn" id="profileButton" type="button" aria-label="Go to profile center">
-          <svg class="avatar-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <circle cx="12" cy="8" r="4" fill="currentColor"></circle>
-            <path d="M4 20C4.8 16.8 7.7 14.5 12 14.5C16.3 14.5 19.2 16.8 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
-          </svg>
-        </button>
-      </div>
-    </header>
+    <div class="nav-badge" id="navBadge"><img src="assets/museum-icon.svg" alt="Museum"></div>
 
-    <section class="hero-strip" aria-label="Featured stories">
-      <div class="hero-track" id="heroTrack">
-        <div class="hero-card" data-clone="last" style="background-image:url('assets/hero/hero-3.jpg');"><span class="hero-label"></span></div>
-        <div class="hero-card" style="background-image:url('assets/hero/hero-1.jpg');"><span class="hero-label"></span></div>
-        <div class="hero-card" style="background-image:url('assets/hero/hero-2.jpg');"><span class="hero-label"></span></div>
-        <div class="hero-card" style="background-image:url('assets/hero/hero-3.jpg');"><span class="hero-label"></span></div>
-        <div class="hero-card" data-clone="first" style="background-image:url('assets/hero/hero-1.jpg');"><span class="hero-label"></span></div>
-      </div>
-      <div class="hero-dots" id="heroDots">
-        <span class="hero-dot active"></span>
-        <span class="hero-dot"></span>
-        <span class="hero-dot"></span>
-      </div>
-    </section>
+    <nav class="top-nav" aria-label="Top navigation">
+      <button class="top-tab active" type="button" data-target="home.html" id="topHome">Home</button>
+      <button class="top-tab" type="button" data-target="collection.html" id="topCollection">Collection</button>
+      <button class="top-tab" type="button" data-target="profile.html" id="topProfile">My</button>
+    </nav>
+
+    <div class="hero-shell">
+      <section class="hero-strip" aria-label="Featured stories">
+        <div class="hero-track" id="heroTrack">
+          <div class="hero-card" data-clone="last" style="background-image:url('assets/hero/hero-3.jpg');"></div>
+          <div class="hero-card" style="background-image:url('assets/hero/hero-1.jpg');"></div>
+          <div class="hero-card" style="background-image:url('assets/hero/hero-2.jpg');"></div>
+          <div class="hero-card" style="background-image:url('assets/hero/hero-3.jpg');"></div>
+          <div class="hero-card" data-clone="first" style="background-image:url('assets/hero/hero-1.jpg');"></div>
+        </div>
+        <div class="hero-dots" id="heroDots">
+          <span class="hero-dot active"></span>
+          <span class="hero-dot"></span>
+          <span class="hero-dot"></span>
+        </div>
+      </section>
+    </div>
 
     <section class="card-list">
-      <button class="feature-card" type="button" data-target="turtle-sea.html">
-        <div class="feature-icon-wrap" aria-hidden="true">
-          <svg class="feature-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M12 7.5C9.8 7.5 8 9.3 8 11.5C8 13.7 9.8 15.5 12 15.5C14.2 15.5 16 13.7 16 11.5C16 9.3 14.2 7.5 12 7.5Z" fill="currentColor"></path>
-            <path d="M7 11.5L4.5 10M7 12.5L4.5 14M17 11.5L19.5 10M17 12.5L19.5 14M10 7L8.5 4.8M14 7L15.5 4.8M10 16L8.2 18.5M14 16L15.8 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-          </svg>
-        </div>
-        <div class="feature-body"><div class="feature-title">Turtle Soup</div></div>
-        <span class="arrow" aria-hidden="true">&rarr;</span>
-      </button>
+      <div class="feature-row">
+        <button class="feature-card compact card-turtle" type="button" data-target="turtle-sea.html">
+          <div class="feature-content">
+            <div class="feature-icon-wrap" aria-hidden="true">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M12 7.5C9.8 7.5 8 9.3 8 11.5C8 13.7 9.8 15.5 12 15.5C14.2 15.5 16 13.7 16 11.5C16 9.3 14.2 7.5 12 7.5Z" fill="currentColor"></path>
+                <path d="M7 11.5L4.5 10M7 12.5L4.5 14M17 11.5L19.5 10M17 12.5L19.5 14M10 7L8.5 4.8M14 7L15.5 4.8M10 16L8.2 18.5M14 16L15.8 18.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+              </svg>
+            </div>
+            <div class="feature-body"><div class="feature-title" id="featureTurtle">Turtle Soup</div></div>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </div>
+        </button>
 
-      <button class="feature-card" type="button" data-target="puzzle.html">
-        <div class="feature-icon-wrap" aria-hidden="true">
-          <svg class="feature-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M8 4H11C11 5.1 11.9 6 13 6C14.1 6 15 5.1 15 4H18C19.1 4 20 4.9 20 6V10C18.9 10 18 10.9 18 12C18 13.1 18.9 14 20 14V18C20 19.1 19.1 20 18 20H14C14 18.9 13.1 18 12 18C10.9 18 10 18.9 10 20H6C4.9 20 4 19.1 4 18V14C5.1 14 6 13.1 6 12C6 10.9 5.1 10 4 10V8C4 5.8 5.8 4 8 4Z" fill="currentColor" opacity="0.92"></path>
-          </svg>
-        </div>
-        <div class="feature-body"><div class="feature-title">Puzzle</div></div>
-        <span class="arrow" aria-hidden="true">&rarr;</span>
-      </button>
+        <button class="feature-card compact card-puzzle" type="button" data-target="puzzle.html">
+          <div class="feature-content">
+            <div class="feature-icon-wrap" aria-hidden="true">
+              <svg class="feature-icon" viewBox="0 0 24 24" fill="none">
+                <path d="M8 4H11C11 5.1 11.9 6 13 6C14.1 6 15 5.1 15 4H18C19.1 4 20 4.9 20 6V10C18.9 10 18 10.9 18 12C18 13.1 18.9 14 20 14V18C20 19.1 19.1 20 18 20H14C14 18.9 13.1 18 12 18C10.9 18 10 18.9 10 20H6C4.9 20 4 19.1 4 18V14C5.1 14 6 13.1 6 12C6 10.9 5.1 10 4 10V8C4 5.8 5.8 4 8 4Z" fill="currentColor" opacity="0.92"></path>
+              </svg>
+            </div>
+            <div class="feature-body"><div class="feature-title" id="featurePuzzle">Puzzle</div></div>
+            <span class="arrow" aria-hidden="true">&rarr;</span>
+          </div>
+        </button>
+      </div>
 
-      <button class="feature-card" type="button" data-target="offline-view.html">
-        <div class="feature-icon-wrap" aria-hidden="true">
-          <svg class="feature-icon" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5L5 8V10H19V8L12 5Z" fill="currentColor"></path>
-            <path d="M7 11.5H9V17H7V11.5ZM11 11.5H13V17H11V11.5ZM15 11.5H17V17H15V11.5Z" fill="currentColor" opacity="0.82"></path>
-            <path d="M5 18H19V20H5V18Z" fill="currentColor"></path>
-          </svg>
+      <button class="feature-card card-offline" type="button" data-target="offline-view.html">
+        <div class="feature-content">
+          <div class="feature-icon-wrap" aria-hidden="true">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5L5 8V10H19V8L12 5Z" fill="currentColor"></path>
+              <path d="M7 11.5H9V17H7V11.5ZM11 11.5H13V17H11V11.5ZM15 11.5H17V17H15V11.5Z" fill="currentColor" opacity="0.82"></path>
+              <path d="M5 18H19V20H5V18Z" fill="currentColor"></path>
+            </svg>
+          </div>
+          <div class="feature-body"><div class="feature-title" id="featureOffline">Offline Guide</div></div>
+          <span class="arrow" aria-hidden="true">&rarr;</span>
         </div>
-        <div class="feature-body"><div class="feature-title">Offline View</div></div>
-        <span class="arrow" aria-hidden="true">&rarr;</span>
       </button>
     </section>
 
-    <div class="toast" id="toast">Thank you for your suggestion.</div>
+    <nav class="bottom-nav" aria-label="Bottom navigation">
+      <button class="bottom-item active" type="button" data-target="home.html" id="bottomHome">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 10.5L12 4L20 10.5V19C20 19.6 19.6 20 19 20H15V14.5H9V20H5C4.4 20 4 19.6 4 19V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+        </svg>
+        <span class="bottom-label" id="bottomHomeLabel">Home</span>
+      </button>
+      <button class="bottom-item" type="button" data-target="collection.html" id="bottomCollection">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 4L18.5 7.2V16.8L12 20L5.5 16.8V7.2L12 4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+          <path d="M12 8.2L15.6 10V13.9L12 15.7L8.4 13.9V10L12 8.2Z" fill="currentColor" opacity="0.75"></path>
+        </svg>
+        <span class="bottom-label" id="bottomCollectionLabel">Collection</span>
+      </button>
+      <button class="bottom-item" type="button" data-target="profile.html" id="bottomProfile">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle>
+          <path d="M4.5 19.5C5.4 16.6 8.1 14.7 12 14.7C15.9 14.7 18.6 16.6 19.5 19.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+        <span class="bottom-label" id="bottomProfileLabel">My</span>
+      </button>
+    </nav>
   </main>
-
-  <div class="overlay" id="feedbackOverlay">
-    <div class="feedback-modal">
-      <div class="modal-topbar">
-        <button class="modal-close" id="closeFeedbackModal" type="button" aria-label="Close">&times;</button>
-      </div>
-      <div class="feedback-area" id="feedbackArea">
-        Please enter your suggestion and we will improve it.
-      </div>
-      <div class="feedback-input-row" id="feedbackInputRow">
-        <input class="feedback-input" id="feedbackInput" type="text" placeholder="Share your feedback...">
-        <button class="feedback-send" id="feedbackSend" type="button">Send</button>
-      </div>
-    </div>
-  </div>
 
   <script src="assets/i18n.js"></script>
   <script>
     if (window.location.protocol === "file:") {
-      var homeFileTarget = "http://127.0.0.1:8080/home.html" + window.location.search + window.location.hash;
-      window.location.replace(homeFileTarget);
+      window.location.replace("http://127.0.0.1:8080/home.html" + window.location.search + window.location.hash);
     }
+
+    var texts = {
+      en: {
+        topHome: "Home",
+        topCollection: "Collection",
+        topProfile: "My",
+        turtle: "Turtle Soup",
+        puzzle: "Puzzle",
+        offline: "Offline Guide",
+        bottomHome: "Home",
+        bottomCollection: "Collection",
+        bottomProfile: "My",
+        lang: "中/ENG",
+        badgeAlt: "Museum"
+      },
+      zh: {
+        topHome: "主页",
+        topCollection: "藏品",
+        topProfile: "我的",
+        turtle: "海龟汤",
+        puzzle: "拼图",
+        offline: "线下导览",
+        bottomHome: "主页",
+        bottomCollection: "藏品",
+        bottomProfile: "我的",
+        lang: "中/ENG",
+        badgeAlt: "博物馆"
+      }
+    };
 
     var heroTrack = document.getElementById("heroTrack");
     var heroDots = Array.prototype.slice.call(document.querySelectorAll(".hero-dot"));
-    var feedbackOverlay = document.getElementById("feedbackOverlay");
-    var feedbackInput = document.getElementById("feedbackInput");
-    var toast = document.getElementById("toast");
-    var toastTimer = null;
     var slideCount = heroDots.length;
     var isAdjusting = false;
+
+    function currentText() {
+      return MuseumI18n.getLanguage() === "zh" ? texts.zh : texts.en;
+    }
+
+    function applyLanguage() {
+      var t = currentText();
+      document.getElementById("topHome").textContent = t.topHome;
+      document.getElementById("topCollection").textContent = t.topCollection;
+      document.getElementById("topProfile").textContent = t.topProfile;
+      document.getElementById("featureTurtle").textContent = t.turtle;
+      document.getElementById("featurePuzzle").textContent = t.puzzle;
+      document.getElementById("featureOffline").textContent = t.offline;
+      document.getElementById("bottomHomeLabel").textContent = t.bottomHome;
+      document.getElementById("bottomCollectionLabel").textContent = t.bottomCollection;
+      document.getElementById("bottomProfileLabel").textContent = t.bottomProfile;
+      document.querySelector("#navBadge img").alt = t.badgeAlt;
+      document.getElementById("languageToggle").textContent = t.lang;
+      document.title = MuseumI18n.getLanguage() === "zh" ? "主页 - 我的博物馆故事" : "Home - My Museum Stories";
+    }
 
     function updateDots() {
       var cardWidth = heroTrack.clientWidth;
       var rawIndex = Math.round(heroTrack.scrollLeft / cardWidth);
       var index = rawIndex - 1;
-      if (index < 0) {
-        index = slideCount - 1;
-      }
-      if (index >= slideCount) {
-        index = 0;
-      }
+      if (index < 0) { index = slideCount - 1; }
+      if (index >= slideCount) { index = 0; }
       heroDots.forEach(function (dot, dotIndex) {
         dot.classList.toggle("active", dotIndex === index);
       });
@@ -568,90 +591,27 @@
       updateDots();
     }
 
-    function openFeedbackModal() {
-      feedbackOverlay.classList.add("show");
-      feedbackInput.focus();
-    }
-
-    function closeFeedbackModal() {
-      feedbackOverlay.classList.remove("show");
-      feedbackInput.value = "";
-    }
-
-    function showToast(message) {
-      toast.textContent = message;
-      toast.classList.add("show");
-      window.clearTimeout(toastTimer);
-      toastTimer = window.setTimeout(function () {
-        toast.classList.remove("show");
-      }, 1700);
-    }
-
-    async function requestJson(url, options) {
-      var response = await fetch(url, options);
-      var data = await response.json().catch(function () {
-        return { success: false, message: "Unexpected server response." };
+    document.querySelectorAll("[data-target]").forEach(function (item) {
+      item.addEventListener("click", function () {
+        var target = item.getAttribute("data-target");
+        if (target) { window.location.href = target; }
       });
-      if (response.status === 401) {
-        window.location.href = "login.html";
-        throw new Error("Please log in first.");
-      }
-      if (!response.ok) {
-        throw new Error(data.message || "Request failed.");
-      }
-      return data;
-    }
-
-    document.getElementById("profileButton").addEventListener("click", function () {
-      window.location.href = "profile.html";
-    });
-
-    document.getElementById("languageToggle").addEventListener("click", function () {
-      MuseumI18n.toggleLanguage();
-      MuseumI18n.applyPage("home");
-    });
-
-    document.getElementById("feedbackButton").addEventListener("click", openFeedbackModal);
-    document.getElementById("closeFeedbackModal").addEventListener("click", closeFeedbackModal);
-
-    feedbackOverlay.addEventListener("click", function (event) {
-      if (event.target === feedbackOverlay) {
-        closeFeedbackModal();
-      }
-    });
-
-    document.getElementById("feedbackSend").addEventListener("click", async function () {
-      if (!feedbackInput.value.trim()) {
-        feedbackInput.focus();
-        return;
-      }
-
-      try {
-        var result = await requestJson("/api/feedback", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: feedbackInput.value.trim() })
-        });
-        closeFeedbackModal();
-        showToast(result.message || MuseumI18n.t("home_thanks"));
-      } catch (error) {
-        showToast(error.message);
-      }
     });
 
     document.querySelectorAll(".feature-card").forEach(function (card) {
       card.addEventListener("click", function () {
         var target = card.getAttribute("data-target");
-        if (target) {
-          window.location.href = target;
-        }
+        if (target) { window.location.href = target; }
       });
     });
 
+    document.getElementById("languageToggle").addEventListener("click", function () {
+      MuseumI18n.toggleLanguage();
+      applyLanguage();
+    });
+
     heroTrack.addEventListener("scroll", function () {
-      if (isAdjusting) {
-        return;
-      }
+      if (isAdjusting) { return; }
       var cardWidth = heroTrack.clientWidth;
       var rawIndex = Math.round(heroTrack.scrollLeft / cardWidth);
       if (rawIndex === 0) {
@@ -672,16 +632,14 @@
     }, { passive: true });
 
     window.addEventListener("load", async function () {
-      MuseumI18n.applyPage("home");
-      document.getElementById("toast").textContent = MuseumI18n.t("home_thanks");
+      applyLanguage();
       jumpToRealSlide(1);
       try {
-        await requestJson("/api/auth/me", { method: "GET" });
-      } catch (error) {
-        if (error.message !== "Please log in first.") {
-          showToast(error.message);
+        var response = await fetch("/api/auth/me");
+        if (response.status === 401) {
+          window.location.href = "login.html";
         }
-      }
+      } catch (error) {}
     });
 
     window.addEventListener("resize", function () {

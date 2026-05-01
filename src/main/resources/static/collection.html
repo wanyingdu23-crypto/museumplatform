@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Collection - My Museum Stories</title>
+  <style>
+    :root {
+      --surface: #e8d7b1;
+      --surface-solid: #f6ead2;
+      --surface-soft: #ecdbbb;
+      --text: #2e2217;
+      --muted: #8f7c63;
+      --border: #d1ba91;
+      --shadow: 0 12px 32px rgba(84, 60, 28, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: #ffffff;
+      padding:
+        max(18px, env(safe-area-inset-top))
+        max(16px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(16px, env(safe-area-inset-left));
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 420px;
+      height: calc(100svh - 42px);
+      min-height: calc(100svh - 42px);
+      margin: 0 auto;
+      padding: 18px 16px 18px;
+      background: rgba(255, 250, 240, 0.82);
+      border: 1px solid rgba(255, 248, 234, 0.96);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .app-shell > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ornament-layer {
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      background-image: url("assets/museum-ornament.svg");
+      background-repeat: no-repeat;
+      background-position: center top;
+      background-size: 112% auto;
+      opacity: 0.54;
+      pointer-events: none;
+      z-index: 0;
+      filter: saturate(1.08);
+    }
+
+    .lang-btn {
+      display: none;
+    }
+
+    .nav-badge {
+      align-self: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge img {
+      width: 42px;
+      height: 42px;
+      display: block;
+      opacity: 0.92;
+      filter: sepia(1) saturate(2.8) hue-rotate(350deg) brightness(0.88);
+    }
+
+    .top-nav {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      align-items: end;
+      gap: 8px;
+      padding: 0 6px 10px;
+      border-bottom: 3px solid #ddc8a7;
+      flex-shrink: 0;
+    }
+
+    .top-tab {
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 700;
+      padding: 6px 0 8px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .top-tab.active {
+      color: var(--text);
+    }
+
+    .top-tab.active::after {
+      content: "";
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: -11px;
+      height: 2.5px;
+      border-radius: 999px;
+      background: #9e6c2b;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 0 14px;
+      border: 1px solid rgba(223, 207, 179, 0.92);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: 0 4px 12px rgba(84, 60, 28, 0.04);
+      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+    }
+
+    .search-icon {
+      width: 17px;
+      height: 17px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      width: 100%;
+      min-height: 34px;
+      padding: 0 10px;
+      border: none;
+      outline: none;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.38);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.92rem;
+    }
+
+    .catalog-content {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 2px;
+      padding-right: 2px;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+    }
+
+    .catalog-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .preview-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 96px;
+      gap: 10px;
+      height: clamp(440px, 56vh, 540px);
+      min-height: 440px;
+      max-height: 540px;
+      flex-shrink: 0;
+    }
+
+    .main-panel {
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: #f4e6cb;
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.05);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .main-image {
+      width: 100%;
+      flex: 1;
+      min-height: 0;
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-weight: 700;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .main-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .main-title {
+      text-align: center;
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.45;
+      padding: 0 6px;
+      flex-shrink: 0;
+    }
+
+    .thumb-list {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: #f4e6cb;
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.05);
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      min-height: 0;
+      scrollbar-width: none;
+    }
+
+    .thumb-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .thumb-btn {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #ffffff;
+      overflow: hidden;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .thumb-btn.active {
+      outline: 2px solid #a56f2f;
+      outline-offset: 1px;
+    }
+
+    .thumb-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      padding: 6px;
+    }
+
+    .detail-panel {
+      min-height: 146px;
+      max-height: 178px;
+      padding: 14px 14px 12px;
+      border-radius: 22px;
+      background: #f4e6cb;
+      border: 1px solid var(--border);
+      color: var(--text);
+      box-shadow: 0 4px 16px rgba(84, 60, 28, 0.05);
+      overflow-y: auto;
+      flex-shrink: 0;
+      scrollbar-width: none;
+    }
+
+    .detail-panel::-webkit-scrollbar {
+      display: none;
+    }
+
+    .detail-title {
+      font-size: 0.96rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #8b6328;
+    }
+
+    .detail-text {
+      font-size: 0.9rem;
+      line-height: 1.66;
+      white-space: pre-wrap;
+      color: var(--text);
+    }
+
+    .empty-note {
+      flex: 1;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      padding: 24px;
+      border: 1px dashed var(--border);
+      border-radius: 22px;
+      background: rgba(255, 250, 240, 0.82);
+    }
+
+    .bottom-nav {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border-top: 1px solid #e4d4ba;
+      border-radius: 24px;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(84, 60, 28, 0.04);
+      flex-shrink: 0;
+    }
+
+    .bottom-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 6px 6px;
+      border: none;
+      border-radius: 18px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .bottom-item.active {
+      color: var(--text);
+      background: rgba(190, 144, 81, 0.12);
+    }
+
+    .bottom-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .bottom-label {
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <div class="ornament-layer" aria-hidden="true"></div>
+    <button class="lang-btn" id="languageToggle" type="button">中/ENG</button>
+    <div class="nav-badge" id="navBadge"><img src="assets/museum-icon.svg" alt="Museum"></div>
+
+    <nav class="top-nav" aria-label="Top navigation">
+      <button class="top-tab" type="button" data-target="home.html" id="topHome">Home</button>
+      <button class="top-tab active" type="button" data-target="collection.html" id="topCollection">Collection</button>
+      <button class="top-tab" type="button" data-target="profile.html" id="topProfile">My</button>
+    </nav>
+
+    <section class="catalog-content" id="catalogContent">
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"></circle>
+          <path d="M16 16L20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search artifacts...">
+      </div>
+
+      <div class="preview-wrap" id="previewWrap" style="display:none;">
+        <div class="main-panel">
+          <div class="main-image" id="mainImage">Artifact Image</div>
+          <div class="main-title" id="mainTitle">Artifact Title</div>
+        </div>
+        <div class="thumb-list" id="thumbList"></div>
+      </div>
+
+      <div class="detail-panel" id="detailPanel" style="display:none;">
+        <div class="detail-title" id="detailTitle">Artifact Details</div>
+        <div class="detail-text" id="detailText"></div>
+      </div>
+
+      <div class="empty-note" id="emptyNote" style="display:none;">No artifacts found.</div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Bottom navigation">
+      <button class="bottom-item" type="button" data-target="home.html" id="bottomHome">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 10.5L12 4L20 10.5V19C20 19.6 19.6 20 19 20H15V14.5H9V20H5C4.4 20 4 19.6 4 19V10.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+        </svg>
+        <span class="bottom-label" id="bottomHomeLabel">Home</span>
+      </button>
+      <button class="bottom-item active" type="button" data-target="collection.html" id="bottomCollection">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 4L18.5 7.2V16.8L12 20L5.5 16.8V7.2L12 4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+          <path d="M12 8.2L15.6 10V13.9L12 15.7L8.4 13.9V10L12 8.2Z" fill="currentColor" opacity="0.75"></path>
+        </svg>
+        <span class="bottom-label" id="bottomCollectionLabel">Collection</span>
+      </button>
+      <button class="bottom-item" type="button" data-target="profile.html" id="bottomProfile">
+        <svg class="bottom-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle>
+          <path d="M4.5 19.5C5.4 16.6 8.1 14.7 12 14.7C15.9 14.7 18.6 16.6 19.5 19.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+        <span class="bottom-label" id="bottomProfileLabel">My</span>
+      </button>
+    </nav>
+  </main>
+
+  <script src="assets/i18n.js"></script>
+  <script>
+    if (window.location.protocol === "file:") {
+      window.location.replace("http://127.0.0.1:8080/collection.html" + window.location.search + window.location.hash);
+    }
+
+    var texts = {
+      en: {
+        topHome: "Home",
+        topCollection: "Collection",
+        topProfile: "My",
+        bottomHome: "Home",
+        bottomCollection: "Collection",
+        bottomProfile: "My",
+        searchPlaceholder: "Search artifacts...",
+        empty: "No artifacts found.",
+        detail: "Artifact Details",
+        lang: "中/ENG",
+        badgeAlt: "Museum",
+        title: "Collection - My Museum Stories"
+      },
+      zh: {
+        topHome: "主页",
+        topCollection: "藏品",
+        topProfile: "我的",
+        bottomHome: "主页",
+        bottomCollection: "藏品",
+        bottomProfile: "我的",
+        searchPlaceholder: "搜索文物...",
+        empty: "未找到相关文物。",
+        detail: "文物详情",
+        lang: "中/ENG",
+        badgeAlt: "博物馆",
+        title: "藏品 - 我的博物馆故事"
+      }
+    };
+
+    var artifacts = [];
+    var activeIndex = 0;
+
+    function currentText() {
+      return MuseumI18n.getLanguage() === "zh" ? texts.zh : texts.en;
+    }
+
+    function applyLanguageFrame() {
+      var t = currentText();
+      document.getElementById("topHome").textContent = t.topHome;
+      document.getElementById("topCollection").textContent = t.topCollection;
+      document.getElementById("topProfile").textContent = t.topProfile;
+      document.getElementById("bottomHomeLabel").textContent = t.bottomHome;
+      document.getElementById("bottomCollectionLabel").textContent = t.bottomCollection;
+      document.getElementById("bottomProfileLabel").textContent = t.bottomProfile;
+      document.getElementById("searchInput").placeholder = t.searchPlaceholder;
+      document.getElementById("emptyNote").textContent = t.empty;
+      document.getElementById("detailTitle").textContent = t.detail;
+      document.querySelector("#navBadge img").alt = t.badgeAlt;
+      document.getElementById("languageToggle").textContent = t.lang;
+      document.title = t.title;
+    }
+
+    async function requestJson(url) {
+      var response = await fetch(url);
+      var data = await response.json().catch(function () { return []; });
+      if (response.status === 401) {
+        window.location.href = "login.html";
+        throw new Error("Please log in first.");
+      }
+      if (!response.ok) {
+        throw new Error("Request failed.");
+      }
+      return data;
+    }
+
+    function setActiveArtifact(index) {
+      activeIndex = index;
+      var artifact = artifacts[index];
+      var imageBox = document.getElementById("mainImage");
+      if (artifact.imageUrl) {
+        imageBox.innerHTML = '<img src="' + artifact.imageUrl + '" alt="' + artifact.title + '">';
+      } else {
+        imageBox.textContent = artifact.imageLabel || artifact.title;
+      }
+      document.getElementById("mainTitle").textContent = artifact.title;
+      document.getElementById("detailText").textContent = artifact.description || "";
+      Array.prototype.slice.call(document.querySelectorAll(".thumb-btn")).forEach(function (button, buttonIndex) {
+        button.classList.toggle("active", buttonIndex === index);
+      });
+    }
+
+    function renderArtifacts() {
+      var previewWrap = document.getElementById("previewWrap");
+      var detailPanel = document.getElementById("detailPanel");
+      var thumbList = document.getElementById("thumbList");
+      var emptyNote = document.getElementById("emptyNote");
+      thumbList.innerHTML = "";
+
+      if (!artifacts.length) {
+        previewWrap.style.display = "none";
+        detailPanel.style.display = "none";
+        emptyNote.style.display = "flex";
+        return;
+      }
+
+      emptyNote.style.display = "none";
+      previewWrap.style.display = "grid";
+      detailPanel.style.display = "block";
+
+      artifacts.forEach(function (artifact, index) {
+        var button = document.createElement("button");
+        button.className = "thumb-btn";
+        button.type = "button";
+        button.innerHTML = artifact.imageUrl
+          ? '<img src="' + artifact.imageUrl + '" alt="' + artifact.title + '">'
+          : artifact.imageLabel;
+        button.addEventListener("click", function () {
+          setActiveArtifact(index);
+        });
+        thumbList.appendChild(button);
+      });
+
+      setActiveArtifact(Math.min(activeIndex, artifacts.length - 1));
+    }
+
+    async function loadArtifacts(query) {
+      applyLanguageFrame();
+      artifacts = await requestJson("/api/catalog?lang=" + encodeURIComponent(MuseumI18n.getLanguage()) + "&query=" + encodeURIComponent(query || ""));
+      activeIndex = 0;
+      renderArtifacts();
+    }
+
+    document.querySelectorAll("[data-target]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var target = button.getAttribute("data-target");
+        if (target) {
+          window.location.href = target;
+        }
+      });
+    });
+
+    document.getElementById("languageToggle").addEventListener("click", async function () {
+      MuseumI18n.toggleLanguage();
+      await loadArtifacts(document.getElementById("searchInput").value.trim());
+    });
+
+    document.getElementById("searchInput").addEventListener("keydown", async function (event) {
+      if (event.key === "Enter") {
+        await loadArtifacts(event.target.value.trim());
+      }
+    });
+
+    window.addEventListener("load", async function () {
+      var params = new URLSearchParams(window.location.search);
+      var query = params.get("query") || "";
+      document.getElementById("searchInput").value = query;
+      await loadArtifacts(query);
+    });
+  </script>
+</body>
+</html>

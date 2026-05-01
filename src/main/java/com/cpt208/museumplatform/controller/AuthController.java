@@ -4,6 +4,7 @@ import com.cpt208.museumplatform.dto.ApiResponse;
 import com.cpt208.museumplatform.dto.LoginRequest;
 import com.cpt208.museumplatform.dto.ProfileResponse;
 import com.cpt208.museumplatform.dto.RegisterRequest;
+import com.cpt208.museumplatform.dto.UpdateProfileRequest;
 import com.cpt208.museumplatform.model.User;
 import com.cpt208.museumplatform.service.UserSessionService;
 import jakarta.servlet.http.HttpSession;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -44,6 +46,12 @@ public class AuthController extends BaseUserController {
     @GetMapping("/me")
     public ProfileResponse currentUser(HttpSession session) {
         return toProfileResponse(requireUser(session, userSessionService));
+    }
+
+    @PutMapping("/profile")
+    public ProfileResponse updateProfile(@RequestBody UpdateProfileRequest request, HttpSession session) {
+        User user = requireUser(session, userSessionService);
+        return toProfileResponse(userSessionService.updateProfile(user.getId(), request));
     }
 
     @PostMapping("/logout")
